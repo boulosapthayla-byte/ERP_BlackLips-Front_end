@@ -52,6 +52,70 @@ body {
 .btn-pdf { background: var(--btn-pdf); border-color: var(--btn-pdf); }
 .btn-clean { border: 1px solid #d32f2f; color: #ff8a80; background: transparent; }
 
+/* ============================================================
+   👇 COLE AQUI O CSS DO MENU (Fica organizado junto com a Toolbar)
+   ============================================================ */
+
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* O Menu (Usando as variáveis do seu tema Dark) */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 105%;
+    right: 0;
+    
+    /* Variáveis do seu tema */
+    background-color: var(--bg-header); 
+    border: 1px solid var(--border-lines);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 230px;
+    overflow: hidden;
+}
+
+.dropdown-menu.mostrar {
+    display: block;
+    animation: slideDown 0.2s ease-out;
+}
+
+/* Itens do Menu */
+.opcao-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-lines);
+    color: var(--text-main);
+    transition: background 0.2s;
+}
+
+.opcao-item:last-child { border-bottom: none; }
+
+.opcao-item:hover {
+    background-color: var(--bg-hover);
+    color: #fff;
+}
+
+.opcao-item .icone { font-size: 18px; margin-right: 12px; opacity: 0.8; }
+
+.opcao-item .texto { display: flex; flex-direction: column; }
+.opcao-item .titulo { font-size: 13px; font-weight: 600; }
+.opcao-item .descricao { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Essa regra afeta a tabela, mas pode ficar aqui pois faz parte da "Feature PDF" */
+.modo-separacao .coluna-financeira {
+    display: none !important;
+}
 @media (max-width: 600px) { .btn-text, #status { display: none; } }
 
 /* DATA GRID */
