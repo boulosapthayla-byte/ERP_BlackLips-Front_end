@@ -1,35 +1,48 @@
+/* ============================================================
+   BLACK LIPS ERP - ARQUIVO JS LIMPO E CORRIGIDO
+   ============================================================ */
+
 const API_URL = "https://erp-blacklips-api.onrender.com";
 const lista = document.getElementById('lista');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
+// 1. CARREGAMENTO INICIAL
 window.onload = function() {
-    loadingOverlay.style.display = 'flex';
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    
     try {
         const dadosLocais = localStorage.getItem('visionBlackV6');
-        if(dadosLocais && dadosLocais.trim() !== "") {
+        if (dadosLocais && dadosLocais.trim() !== "") {
             lista.innerHTML = dadosLocais;
             reativarEventos();
             atualizarTotaisGerais();
         } else {
             novoItem();
         }
-    } catch (e) { novoItem(); }
+    } catch (e) { 
+        novoItem(); 
+    }
+
     buscarDaNuvem(); 
 };
 
+// 2. DISPONIBILIZAR FUNÇÕES PARA O HTML
+// (Isso é o que conserta o erro "not defined")
 window.novoItem = novoItem;
 window.apagar = apagar;
 window.salvar = salvar;
 window.enviarParaNuvem = enviarParaNuvem;
-window.baixarPDF = baixarPDF;
 window.limpar = limpar;
 window.calcular = calcular;
+window.alternarMenu = alternarMenu;
+window.gerarPDF = gerarPDF;
+
+// 3. FUNÇÕES DO SISTEMA
 
 function salvar() {
     const inputs = lista.querySelectorAll('input');
     inputs.forEach(input => input.setAttribute('value', input.value));
     
-    // Salva também o estilo (tamanho) das caixas redimensionadas
     const boxes = lista.querySelectorAll('.resizable-box');
     boxes.forEach(box => {
         if(box.style.width) box.setAttribute('style', `width:${box.style.width}; height:${box.style.height}`);
@@ -50,13 +63,11 @@ async function buscarDaNuvem() {
                 dados.forEach(item => {
                     const tr = novoItem(true); 
                     const inputs = tr.querySelectorAll('input');
-                    
                     inputs[0].value = item.nome || "";
                     inputs[1].value = item.quantidade || 1;
                     
                     let valCusto = parseFloat(item.custo || 0);
                     let valVenda = parseFloat(item.venda || 0);
-
                     inputs[2].value = valCusto.toFixed(2).replace('.', ',');
                     inputs[3].value = valVenda.toFixed(2).replace('.', ',');
                     
@@ -70,7 +81,7 @@ async function buscarDaNuvem() {
     } catch (error) {
         atualizarStatus('<i class="fa-solid fa-wifi"></i> Offline', "#9e9e9e");
     } finally {
-        loadingOverlay.style.display = 'none';
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
 }
 
@@ -78,6 +89,7 @@ async function enviarParaNuvem() {
     const btnSave = document.querySelector('.btn-save');
     if (btnSave) btnSave.disabled = true;
     atualizarStatus('Enviando...', "#2196f3");
+    
     const linhas = lista.querySelectorAll('tr');
     const dadosParaEnviar = [];
     linhas.forEach(tr => {
@@ -88,6 +100,7 @@ async function enviarParaNuvem() {
         const venda = lerNumero(inputs[3].value);
         if (nome || venda > 0) dadosParaEnviar.push({ nome, quantidade: qtd, custo, venda });
     });
+
     try {
         const response = await fetch(`${API_URL}/salvar_produto`, {
             method: 'POST',
@@ -118,6 +131,7 @@ function calcular(input, dispararSave = true) {
     const tr = input.closest('tr');
     const inputs = tr.querySelectorAll('input');
     input.setAttribute('value', input.value); 
+    
     const qtd = parseInt(inputs[1].value) || 0;
     const custoUn = lerNumero(inputs[2].value);
     const vendaUn = lerNumero(inputs[3].value);
@@ -133,9 +147,12 @@ function calcular(input, dispararSave = true) {
     } else {
         const lucroTotal = (vendaUn - custoUn) * qtd;
         const margemPercent = ((vendaUn - custoUn) / vendaUn) * 100;
+        
         cellLucro.innerText = "R$ " + lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         cellMargem.innerText = margemPercent.toFixed(2).replace('.', ',') + "%";
+        
         cellLucro.className = 'profit-cell ' + (lucroTotal < 0 ? 'negative' : 'positive');
+        
         let margemClass = 'positive';
         if(margemPercent < 0) margemClass = 'negative';
         else if(margemPercent < 30) margemClass = 'neutral';
@@ -156,6 +173,7 @@ function atualizarTotaisGerais() {
         totalVenda += (vendaUn * qtd);
         totalLucro += ((vendaUn - custoUn) * qtd);
     });
+    
     document.getElementById('totalCusto').innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     document.getElementById('totalVenda').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     const elLucro = document.getElementById('totalLucro');
@@ -163,38 +181,17 @@ function atualizarTotaisGerais() {
     elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
 }
 
-// --- FUNÇÃO CRÍTICA ATUALIZADA: CRIA AS CAIXAS DE RESIZE ---
 function novoItem(retornarElemento = false) {
     const tr = document.createElement('tr');
-    
     tr.innerHTML = `
-        <td>
-            <div class="resizable-box">
-                <input type="text" oninput="salvar()">
-            </div>
-        </td>
-        <td>
-            <div class="resizable-box">
-                <input type="tel" value="1" class="qtd-input" oninput="calcular(this)">
-            </div>
-        </td>
-        <td>
-            <div class="resizable-box">
-                <input type="tel" placeholder="0,00" oninput="calcular(this)">
-            </div>
-        </td>
-        <td>
-            <div class="resizable-box">
-                <input type="tel" placeholder="0,00" oninput="calcular(this)">
-            </div>
-        </td>
+        <td><div class="resizable-box"><input type="text" oninput="salvar()"></div></td>
+        <td><div class="resizable-box"><input type="tel" value="1" class="qtd-input" oninput="calcular(this)"></div></td>
+        <td><div class="resizable-box"><input type="tel" placeholder="0,00" oninput="calcular(this)"></div></td>
+        <td><div class="resizable-box"><input type="tel" placeholder="0,00" oninput="calcular(this)"></div></td>
         <td class="profit-cell">R$ 0,00</td>
         <td class="margin-cell" style="text-align: right;">0,00%</td>
-        <td style="text-align: center;">
-            <button class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></button>
-        </td>
+        <td style="text-align: center;"><button class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></button></td>
     `;
-    
     lista.appendChild(tr);
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (!retornarElemento) salvar();
@@ -228,24 +225,131 @@ function limpar() {
     }
 }
 
-async function baixarPDF() {
+// ============================================================
+// LÓGICA DO MENU E PDF (Corrigida)
+// ============================================================
+
+function alternarMenu() {
+    console.log("Abrindo menu..."); // Debug
+    const menu = document.getElementById("menuPDF");
+    if (menu) menu.classList.toggle("mostrar");
+}
+
+window.onclick = function(event) {
+    if (!event.target.closest('.dropdown-container')) {
+        const menu = document.getElementById("menuPDF");
+        if (menu && menu.classList.contains('mostrar')) {
+            menu.classList.remove('mostrar');
+        }
+    }
+}
+
+async function gerarPDF(tipo) {
+    // 1. Fecha Menu
+    const menu = document.getElementById("menuPDF");
+    if (menu) menu.classList.remove("mostrar");
+
+    // 2. Verifica Biblioteca
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Erro: A biblioteca jspdf não carregou corretamente.");
+        return;
+    }
+
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'pt', 'a4');
-    const el = document.getElementById('printArea');
-    const originalBg = el.style.background;
-    el.style.background = "#fff"; el.style.color = "#000";
-    el.querySelectorAll('input').forEach(i => i.style.color = "#000");
-    el.querySelectorAll('.trash-btn, .btn-add-row').forEach(b => b.style.display = 'none');
-    el.querySelector('tfoot').style.background = "#ddd";
-    await html2canvas(el, { scale: 2 }).then(canvas => {
-        const img = canvas.toDataURL('image/png');
-        const w = doc.internal.pageSize.getWidth() - 40;
-        const h = (canvas.height * w) / canvas.width;
-        doc.addImage(img, 'PNG', 20, 40, w, h);
-        doc.save("Relatorio_BlackLips.pdf");
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // 3. Captura Dados
+    const linhas = document.querySelectorAll('#lista tr');
+    const dadosParaPDF = [];
+
+    linhas.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        // Proteção contra linha vazia ou inputs não carregados
+        if (!inputs || inputs.length < 2) return;
+
+        const produto = inputs[0].value ? inputs[0].value.toUpperCase() : "";
+        const qtd = inputs[1].value || "0";
+        
+        if (produto.trim() === "") return;
+
+        if (tipo === 'completo') {
+            const custo = inputs[2].value || "0,00";
+            const venda = inputs[3].value || "0,00";
+            const lucro = tr.querySelector('.profit-cell') ? tr.querySelector('.profit-cell').innerText : "0,00";
+            const margem = tr.querySelector('.margin-cell') ? tr.querySelector('.margin-cell').innerText : "0%";
+            dadosParaPDF.push([produto, qtd, custo, venda, lucro, margem]);
+        } else {
+            dadosParaPDF.push([produto, qtd, "   [   ] CONFERIDO"]); 
+        }
     });
-    el.style.background = originalBg; el.style.color = "";
-    el.querySelectorAll('input').forEach(i => i.style.color = "");
-    el.querySelectorAll('.trash-btn, .btn-add-row').forEach(b => b.style.display = "");
-    el.querySelector('tfoot').style.background = "";
+
+    if (dadosParaPDF.length === 0) {
+        alert("A tabela está vazia!");
+        return;
+    }
+
+    // 4. Configura Colunas
+    let colunas = [];
+    let tituloRelatorio = "";
+
+    if (tipo === 'completo') {
+        tituloRelatorio = "RELATÓRIO FINANCEIRO - BLACK LIPS ERP";
+        colunas = [
+            { header: 'PRODUTO', dataKey: '0' },
+            { header: 'QTD', dataKey: '1' },
+            { header: 'CUSTO', dataKey: '2' },
+            { header: 'VENDA', dataKey: '3' },
+            { header: 'LUCRO', dataKey: '4' },
+            { header: 'MARGEM', dataKey: '5' }
+        ];
+    } else {
+        tituloRelatorio = "ORDEM DE SEPARAÇÃO DE ESTOQUE";
+        colunas = [
+            { header: 'ITEM / DESCRIÇÃO', dataKey: '0' },
+            { header: 'QTD', dataKey: '1' },
+            { header: 'CONFERÊNCIA', dataKey: '2' }
+        ];
+    }
+
+    // 5. Cabeçalho
+    doc.setFontSize(16);
+    doc.setTextColor(30, 30, 30);
+    doc.text("BLACK LIPS ERP", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(tituloRelatorio, 14, 28);
+    doc.text("Gerado em: " + new Date().toLocaleString(), 14, 33);
+
+    // 6. Tabela AutoTable
+    if (doc.autoTable) {
+        doc.autoTable({
+            head: [colunas.map(c => c.header)],
+            body: dadosParaPDF,
+            startY: 40,
+            theme: 'grid',
+            pageBreak: 'auto',
+            rowPageBreak: 'avoid',
+            styles: { fontSize: 9, valign: 'middle', overflow: 'linebreak', cellPadding: 3, lineColor: [200, 200, 200] },
+            headStyles: { fillColor: [45, 45, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
+            columnStyles: {
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 15, halign: 'center' },
+                2: { halign: tipo === 'completo' ? 'right' : 'left' },
+                3: { halign: 'right' },
+                4: { halign: 'right' },
+                5: { halign: 'right' }
+            },
+            didDrawPage: function (data) {
+                let str = 'Página ' + doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                let pageSize = doc.internal.pageSize;
+                let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                doc.text(str, data.settings.margin.left, pageHeight - 10);
+            }
+        });
+        doc.save(tipo === 'completo' ? "Financeiro_BlackLips.pdf" : "Lista_Separacao.pdf");
+    } else {
+        alert("Erro: O plugin AutoTable não foi carregado. Tente recarregar a página.");
+    }
 }
