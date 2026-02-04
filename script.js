@@ -37,19 +37,21 @@ window.calcular = calcular;
 window.alternarMenu = alternarMenu;
 window.gerarPDF = gerarPDF;
 
-// 3. FUNÇÕES DO SISTEMA
-
+/* --- ALTERAÇÃO NA FUNÇÃO salvar --- */
 function salvar() {
+    // 1. Salva os inputs
     const inputs = lista.querySelectorAll('input');
     inputs.forEach(input => input.setAttribute('value', input.value));
     
-    const boxes = lista.querySelectorAll('.resizable-box');
-    boxes.forEach(box => {
-        if(box.style.width) box.setAttribute('style', `width:${box.style.width}; height:${box.style.height}`);
+    // 2. Salva a altura da LINHA (buscando pela div row-resizer)
+    const resizers = lista.querySelectorAll('.row-resizer');
+    resizers.forEach(resizer => {
+        if(resizer.style.height) {
+            resizer.setAttribute('style', `height:${resizer.style.height}`);
+        }
     });
 
-    try { localStorage.setItem('visionBlackV6', lista.innerHTML); } catch (e) {}
-    atualizarStatus('<i class="fa-solid fa-floppy-disk"></i> Salvo Local', "#ffb74d");
+    localStorage.setItem('visionBlackV6', lista.innerHTML);
     atualizarTotaisGerais();
 }
 
@@ -181,6 +183,7 @@ function atualizarTotaisGerais() {
     elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
 }
 
+/* --- ALTERAÇÃO NA FUNÇÃO novoItem --- */
 function novoItem(retornarElemento = false) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -190,7 +193,11 @@ function novoItem(retornarElemento = false) {
         <td><div class="resizable-box"><input type="tel" placeholder="0,00" oninput="calcular(this)"></div></td>
         <td class="profit-cell">R$ 0,00</td>
         <td class="margin-cell" style="text-align: right;">0,00%</td>
-        <td style="text-align: center;"><button class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></button></td>
+        <td style="text-align: center;">
+            <div class="row-resizer">
+                <div class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+        </td>
     `;
     lista.appendChild(tr);
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
