@@ -1,268 +1,550 @@
 /* =========================================
+
    BLACK LIPS ERP - TEMA DARK ENTERPRISE
+
    Versão 6.0: Controle Total de Pixels
+
    ========================================= */
 
+
+
    :root {
+
     --bg-window: #1e1e1e;
+
     --bg-body: #121212;
+
     --bg-header: #2d2d30;
+
     --bg-row-even: #252526;
+
     --bg-row-odd: #1e1e1e;
+
     --bg-hover: #37373d;
+
     --border-lines: #454545;
+
     --accent-purple: #bb86fc;
+
     --text-main: #e0e0e0;
+
     --text-muted: #858585;
+
     --btn-save: #2e7d32;
+
     --btn-pdf: #0078d4;
+
 }
+
+
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; font-size: 13px; outline: none; }
 
+
+
 body {
+
     background-color: var(--bg-body); color: var(--text-main);
+
     display: flex; justify-content: center; padding: 20px; min-height: 100vh;
+
 }
+
+
 
 .erp-window {
+
     width: 100%; max-width: 1200px; background: var(--bg-window);
+
     border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.6);
+
     display: flex; flex-direction: column; height: 90vh;
+
 }
+
+
 
 /* TOOLBAR */
+
 .toolbar {
+
     background: #333; padding: 10px 15px; display: flex;
+
     justify-content: space-between; align-items: center;
+
     border-bottom: 2px solid var(--accent-purple); flex-shrink: 0;
+
 }
+
 .brand { font-size: 1.1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+
 .version-tag { background: var(--accent-purple); color: #000; font-size: 0.7rem; padding: 2px 6px; border-radius: 2px; }
+
 .toolbar-actions { display: flex; align-items: center; gap: 10px; }
+
 .separator { width: 1px; height: 20px; background: #555; margin: 0 5px; }
 
+
+
 .btn-tool {
+
     border: 1px solid rgba(255,255,255,0.1); background: #444; color: #eee;
+
     padding: 8px 14px; cursor: pointer; border-radius: 4px;
+
     display: flex; align-items: center; gap: 6px; transition: 0.2s;
+
 }
+
 .btn-tool:hover { filter: brightness(1.2); }
+
 .btn-save { background: var(--btn-save); border-color: var(--btn-save); }
+
 .btn-pdf { background: var(--btn-pdf); border-color: var(--btn-pdf); }
+
 .btn-clean { border: 1px solid #d32f2f; color: #ff8a80; background: transparent; }
 
+
+
 /* ============================================================
+
    👇 COLE AQUI O CSS DO MENU (Fica organizado junto com a Toolbar)
+
    ============================================================ */
 
+
+
 .dropdown-container {
+
     position: relative;
+
     display: inline-block;
+
 }
+
+
 
 /* O Menu (Usando as variáveis do seu tema Dark) */
+
 .dropdown-menu {
+
     display: none;
+
     position: absolute;
+
     top: 105%;
+
     right: 0;
+
     
+
     /* Variáveis do seu tema */
+
     background-color: var(--bg-header); 
+
     border: 1px solid var(--border-lines);
+
     box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+
     border-radius: 4px;
+
     z-index: 1000;
+
     min-width: 230px;
+
     overflow: hidden;
+
 }
+
+
 
 .dropdown-menu.mostrar {
+
     display: block;
+
     animation: slideDown 0.2s ease-out;
+
 }
 
+
+
 /* Itens do Menu */
+
 .opcao-item {
+
     padding: 12px 15px;
+
     display: flex;
+
     align-items: center;
+
     cursor: pointer;
+
     border-bottom: 1px solid var(--border-lines);
+
     color: var(--text-main);
+
     transition: background 0.2s;
+
 }
+
+
 
 .opcao-item:last-child { border-bottom: none; }
 
+
+
 .opcao-item:hover {
+
     background-color: var(--bg-hover);
+
     color: #fff;
+
 }
+
+
 
 .opcao-item .icone { font-size: 18px; margin-right: 12px; opacity: 0.8; }
 
+
+
 .opcao-item .texto { display: flex; flex-direction: column; }
+
 .opcao-item .titulo { font-size: 13px; font-weight: 600; }
+
 .opcao-item .descricao { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
+
+
 @keyframes slideDown {
+
     from { opacity: 0; transform: translateY(-5px); }
+
     to { opacity: 1; transform: translateY(0); }
+
 }
+
+
 
 /* Essa regra afeta a tabela, mas pode ficar aqui pois faz parte da "Feature PDF" */
+
 .modo-separacao .coluna-financeira {
+
     display: none !important;
+
 }
+
 @media (max-width: 600px) { .btn-text, #status { display: none; } }
 
+
+
 /* DATA GRID */
+
 .data-grid-container { flex: 1; overflow: auto; background: var(--bg-window); position: relative; }
 
+
+
 .data-grid {
+
     width: 100%; border-collapse: collapse;
+
     table-layout: fixed; /* Fixa o layout base */
+
     min-width: 900px; 
+
 }
+
+
 
 /* Cabeçalhos (Ainda podem ser redimensionados lateralmente) */
+
 .data-grid thead th {
+
     position: sticky; top: 0; background: var(--bg-header); color: #ccc;
+
     font-weight: 600; text-transform: uppercase; padding: 10px;
+
     border-right: 1px solid var(--border-lines); border-bottom: 1px solid var(--border-lines);
+
     z-index: 2; text-align: left;
+
     resize: horizontal; overflow: hidden; /* Mantém o resize no cabeçalho também */
+
 }
+
+
 
 /* CÉLULAS ESTRUTURAIS */
+
 .data-grid td {
+
     border-right: 1px solid var(--border-lines); 
+
     border-bottom: 1px solid var(--border-lines);
+
     /* Importante: Altura automática para a linha crescer se você puxar */
+
     height: auto; 
+
     padding: 0; 
+
     vertical-align: top;
+
 }
 
-/* --- A MÁGICA: CAIXA REDIMENSIONÁVEL EM TODAS AS DIREÇÕES --- */
+
+
+/* --- A MÁGICA: CAIXA TRAVADA E ALINHADA --- */
+
 .resizable-box {
-    resize: both; /* Permite puxar Horizontal e Vertical */
-    overflow: hidden; /* Obrigatório para resize funcionar */
+
+    resize: none !important; /* <--- 1. TIRA OS RISQUINHOS (TRAVA REDIMENSIONAMENTO) */
+
+    overflow: hidden;
+
     width: 100%; 
+
     height: 100%;
+
     min-width: 40px; 
-    min-height: 38px; /* Altura mínima da linha */
+
+    min-height: 38px;
+
     position: relative;
-    display: block;
+
+    
+
+    /* <--- 2. CORREÇÃO DO ALINHAMENTO VERTICAL */
+
+    display: flex;           /* Mudado de 'block' para 'flex' para poder centralizar */
+
+    align-items: center;     /* Centraliza o texto exatamente no meio da linha */
+
 }
+
+
 
 /* INPUTS DENTRO DA CAIXA */
+
 .resizable-box input {
-    position: absolute;
-    top: 0; left: 0;
+
+    /* <--- 3. REMOVIDO O 'POSITION ABSOLUTE' (Ele que bagunçava o alinhamento) */
+
     width: 100%; height: 100%;
+
     background: transparent; border: none;
+
     color: var(--text-main); padding: 0 10px; font-size: 13px;
+
+    
+
+    /* <--- 4. ALINHAMENTO PADRÃO (Números à direita ficam mais organizados) */
+
+    text-align: right; 
+
 }
+
+
 
 .resizable-box input:focus { background: #000; box-shadow: inset 0 0 0 2px var(--accent-purple); }
 
-/* Input QTD centralizado */
+
+
+/* Input QTD centralizado (Mantido igual) */
+
 .resizable-box input.qtd-input { text-align: center; color: var(--accent-purple); font-weight: bold; }
 
+
+
 /* Fontes */
+
 input[type="tel"], .profit-cell, .margin-cell { font-family: 'JetBrains Mono', monospace; }
 
+
+
 /* Cores das linhas */
+
 .data-grid tr:nth-child(even) { background-color: var(--bg-row-even); }
+
 .data-grid tr:nth-child(odd) { background-color: var(--bg-row-odd); }
+
 .data-grid tr:hover { background-color: var(--bg-hover); }
 
+
+
 /* RESULTADOS (Não redimensionáveis para não quebrar layout) */
+
 .profit-cell, .margin-cell {
+
     padding: 0 10px; line-height: 38px; font-weight: bold;
+
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
 }
+
 .positive { color: #4caf50; } .neutral { color: #ff9800; } .negative { color: #f44336; }
 
+
+
 /* LIXO */
+
 .trash-btn {
-    background: transparent; border: none; color: #666; cursor: pointer;
-    font-size: 1rem; width: 100%; height: 100%; min-height: 38px;
-    display: flex; align-items: center; justify-content: center;
+    /* ... mantenha as outras coisas que já estão lá ... */
+    background: transparent; 
+    border: none; 
+    
+    /* 👇 ADICIONE ESSAS DUAS LINHAS: */
+    resize: vertical !important;   /* Faz aparecer o puxador */
+    overflow: hidden !important;   /* Obrigatório para funcionar */
+    
+    /* ... mantenha o resto ... */
+    width: 100%; 
+    height: 100%; 
+    min-height: 35px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
 }
+
 .trash-btn:hover { color: #f44336; background: rgba(40, 0, 0, 0.3); }
 
+
+
 /* RODAPÉ DE TOTAIS */
+
 tfoot {
+
     position: sticky; bottom: 0; z-index: 5;
+
     background: #1e1e1e; border-top: 3px solid var(--accent-purple);
+
     box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+
 }
+
 .total-row td {
+
     color: #fff; font-weight: bold; font-family: 'JetBrains Mono', monospace;
+
     background: #2d2d30; padding: 0 10px; height: 45px; vertical-align: middle;
+
 }
+
+
 
 /* LOADING */
+
 #loadingOverlay {
+
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
     background: rgba(0,0,0,0.9); z-index: 9999;
+
     display: none; align-items: center; justify-content: center; flex-direction: column;
+
 }
+
 .spinner {
+
     width: 50px; height: 50px; border: 4px solid #333;
+
     border-top: 4px solid var(--accent-purple); border-radius: 50%; animation: spin 0.8s linear infinite;
+
 }
+
 @keyframes spin { 100% { transform: rotate(360deg); } }
+
 #printArea { background: var(--bg-window); }
 
+
+
 /* ============================================================
+
    CORREÇÃO DE ALTURA (EMAGRECER AS CÉLULAS)
+
    Cole no FINAL do style.css para corrigir o tamanho "Gigante"
+
    ============================================================ */
 
+
+
 /* 1. Tira o inchaço da Célula Principal */
+
 .data-grid td {
-    padding: 0 !important; /* Remove o enchimento da célula */
-    height: 35px !important; /* Força uma altura elegante de ERP */
+    padding: 0 !important;
+    height: auto !important;     /* <--- MUDOU AQUI (Libera o crescimento) */
+    min-height: 35px !important; /* <--- ADICIONOU AQUI (Segura o tamanho mínimo) */
     vertical-align: middle !important;
 }
 
+
+
 /* 2. Ajusta a caixa de redimensionar para caber na linha fina */
+
 .resizable-box {
+
     min-height: 35px !important; /* Mesma altura da linha */
+
     height: 100% !important;
+
     display: flex !important;
+
     align-items: center !important; /* Centraliza o texto verticalmente */
+
 }
+
+
 
 /* 3. Ajusta o Input para não empurrar as bordas */
+
 .resizable-box input {
+
     height: 100% !important;
+
     padding-top: 0 !important;
+
     padding-bottom: 0 !important;
+
     line-height: 35px !important; /* Texto fica exatamente no meio */
+
     
+
     /* Mantém o alinhamento SAP (Direita/Esquerda) que configuramos antes */
+
     /* Apenas ajusta o espaço lateral para não colar na borda */
+
     padding-left: 8px !important; 
+
     padding-right: 8px !important;
+
 }
 
+
+
 /* 4. Garante que o alinhamento SAP continue funcionando */
+
 /* Dinheiro na Direita */
+
 .data-grid td:nth-child(3) input, 
+
 .data-grid td:nth-child(4) input {
+
     text-align: right !important;
+
 }
+
 /* Quantidade no Centro */
+
 .data-grid td:nth-child(2) input {
+
     text-align: center !important;
+
 }
+
 /* Produto na Esquerda */
+
 .data-grid td:nth-child(1) input {
+
     text-align: left !important;
+
 }
