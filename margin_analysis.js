@@ -1,11 +1,15 @@
-/* BLACK LIPS ERP - JS FINAL & LIMPO */
+/* ============================================================
+   BLACK LIPS ERP - ARQUIVO JS LIMPO E CORRIGIDO
+   ============================================================ */
 
 const API_URL = "https://erp-blacklips-api.onrender.com";
 const lista = document.getElementById('lista');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
+// 1. CARREGAMENTO INICIAL
 window.onload = function() {
-    if (loadingOverlay) loadingOverlay.style.display = 'none';
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    
     try {
         const dadosLocais = localStorage.getItem('visionBlackV6');
         if (dadosLocais && dadosLocais.trim() !== "") {
@@ -15,78 +19,107 @@ window.onload = function() {
         } else {
             novoItem();
         }
-    } catch (e) { novoItem(); }
+    } catch (e) { 
+        novoItem(); 
+    }
+
     buscarDaNuvem(); 
 };
 
+// 2. DISPONIBILIZAR FUNÇÕES PARA O HTML
+// (Isso é o que conserta o erro "not defined")
 window.novoItem = novoItem;
-window.apagar = removerLinha; 
-window.removerLinha = removerLinha;
+window.apagar = apagar;
 window.salvar = salvar;
-window.formatarMoeda = formatarMoeda;
+window.enviarParaNuvem = enviarParaNuvem;
+window.limpar = limpar;
 window.calcular = calcular;
 window.alternarMenu = alternarMenu;
 window.gerarPDF = gerarPDF;
-window.enviarParaNuvem = enviarParaNuvem;
-window.limpar = limpar;
 
-function novoItem(retornarLinha = false) {
-    const tbody = document.getElementById('lista');
-    if (!tbody) return;
-    const tr = document.createElement("tr");
+/* --- ALTERAÇÃO NA FUNÇÃO salvar --- */
+function salvar() {
+    // 1. Salva os inputs
+    const inputs = lista.querySelectorAll('input');
+    inputs.forEach(input => input.setAttribute('value', input.value));
+    
+    // 2. Salva a altura da LINHA (buscando pela div row-resizer)
+    const resizers = lista.querySelectorAll('.row-resizer');
+    resizers.forEach(resizer => {
+        if(resizer.style.height) {
+            resizer.setAttribute('style', `height:${resizer.style.height}`);
+        }
+    });
 
-    // ADICIONEI 'name' NOS INPUTS PARA PARAR O AVISO AMARELO
-    tr.innerHTML = `
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="text" name="produto" placeholder="Item..." style="text-align: left;">
-            </div>
-        </td>
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" name="qtd" class="qtd-input" value="1" oninput="calcular(this)">
-            </div>
-        </td>
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" name="custo" value="0,00" oninput="formatarMoeda(this); calcular(this)">
-            </div>
-        </td>
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" name="venda" value="0,00" oninput="formatarMoeda(this); calcular(this)">
-            </div>
-        </td>
-        <td class="profit-cell">R$ 0,00</td>
-        <td class="margin-cell" style="position: relative; padding-right: 35px !important;">
-            0,00%
-            <button class="trash-btn" onclick="removerLinha(this)" tabindex="-1">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </td>
-    `;
-    tbody.appendChild(tr);
-    const inputs = tr.querySelectorAll('input');
-    inputs[0].addEventListener('input', salvar);
-    if(!retornarLinha) { inputs[0].focus(); salvar(); }
-    return tr;
+    localStorage.setItem('visionBlackV6', lista.innerHTML);
+    atualizarTotaisGerais();
 }
 
-function removerLinha(btn) {
-    if(confirm('Tem certeza que deseja apagar?')) {
-        const linha = btn.closest('tr');
-        if(linha) linha.remove();
-        salvar();
-        atualizarTotaisGerais();
+async function buscarDaNuvem() {
+    try {
+        const res = await fetch(`${API_URL}/listar_produtos?t=${new Date().getTime()}`);
+        if (res.ok) {
+            const dados = await res.json();
+            if (dados && dados.length > 0) {
+                lista.innerHTML = ''; 
+                dados.forEach(item => {
+                    const tr = novoItem(true); 
+                    const inputs = tr.querySelectorAll('input');
+                    inputs[0].value = item.nome || "";
+                    inputs[1].value = item.quantidade || 1;
+                    
+                    let valCusto = parseFloat(item.custo || 0);
+                    let valVenda = parseFloat(item.venda || 0);
+                    inputs[2].value = valCusto.toFixed(2).replace('.', ',');
+                    inputs[3].value = valVenda.toFixed(2).replace('.', ',');
+                    
+                    inputs.forEach(i => i.setAttribute('value', i.value));
+                    calcular(inputs[1], false);
+                });
+                salvar();
+                atualizarStatus('<i class="fa-solid fa-check-double"></i> Sincronizado', "#4caf50");
+            }
+        }
+    } catch (error) {
+        atualizarStatus('<i class="fa-solid fa-wifi"></i> Offline', "#9e9e9e");
+    } finally {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
 }
 
-function formatarMoeda(elemento) {
-    let valor = elemento.value.replace(/\D/g, "");
-    valor = (parseFloat(valor) / 100).toFixed(2) + "";
-    valor = valor.replace(".", ",");
-    valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-    elemento.value = valor;
+async function enviarParaNuvem() {
+    const btnSave = document.querySelector('.btn-save');
+    if (btnSave) btnSave.disabled = true;
+    atualizarStatus('Enviando...', "#2196f3");
+    
+    const linhas = lista.querySelectorAll('tr');
+    const dadosParaEnviar = [];
+    linhas.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        const nome = inputs[0].value.trim();
+        const qtd = parseInt(inputs[1].value) || 1;
+        const custo = lerNumero(inputs[2].value);
+        const venda = lerNumero(inputs[3].value);
+        if (nome || venda > 0) dadosParaEnviar.push({ nome, quantidade: qtd, custo, venda });
+    });
+
+    try {
+        const response = await fetch(`${API_URL}/salvar_produto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lista_produtos: dadosParaEnviar })
+        });
+        if(response.ok) atualizarStatus('Salvo na Nuvem!', "#4caf50");
+        else throw new Error();
+    } catch (error) {
+        atualizarStatus('Erro ao Enviar', "#f44336");
+    } finally {
+        if (btnSave) btnSave.disabled = false;
+        setTimeout(() => { 
+             const s = document.getElementById('status');
+             if(s && s.innerText.includes("Salvo")) atualizarStatus('Pronto', "#858585");
+        }, 4000);
+    }
 }
 
 function lerNumero(val) {
@@ -96,113 +129,234 @@ function lerNumero(val) {
     return parseFloat(val) || 0;
 }
 
-function calcular(input) {
+function calcular(input, dispararSave = true) {
     const tr = input.closest('tr');
     const inputs = tr.querySelectorAll('input');
-    input.setAttribute('value', input.value);
+    input.setAttribute('value', input.value); 
+    
     const qtd = parseInt(inputs[1].value) || 0;
-    const custo = lerNumero(inputs[2].value);
-    const venda = lerNumero(inputs[3].value);
-    const profitCell = tr.querySelector('.profit-cell');
-    const marginCell = tr.querySelector('.margin-cell');
+    const custoUn = lerNumero(inputs[2].value);
+    const vendaUn = lerNumero(inputs[3].value);
+    
+    const cellLucro = tr.querySelector('.profit-cell');
+    const cellMargem = tr.querySelector('.margin-cell');
 
-    if (venda === 0) {
-        profitCell.innerText = "R$ 0,00"; marginCell.innerText = "0,00%";
-        profitCell.className = 'profit-cell'; marginCell.className = 'margin-cell';
+    if (vendaUn === 0) {
+        cellLucro.innerText = "R$ 0,00";
+        cellMargem.innerText = "0,00%";
+        cellLucro.className = 'profit-cell';
+        cellMargem.className = 'margin-cell';
     } else {
-        const lucro = (venda - custo) * qtd;
-        const margem = ((venda - custo) / venda) * 100;
-        profitCell.innerText = "R$ " + lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        marginCell.innerText = margem.toFixed(2).replace('.', ',') + "%";
-        profitCell.className = 'profit-cell ' + (lucro < 0 ? 'negative' : 'positive');
-        let mClass = 'positive';
-        if(margem < 0) mClass = 'negative'; else if(margem < 30) mClass = 'neutral';
-        marginCell.className = 'margin-cell ' + mClass;
+        const lucroTotal = (vendaUn - custoUn) * qtd;
+        const margemPercent = ((vendaUn - custoUn) / vendaUn) * 100;
+        
+        cellLucro.innerText = "R$ " + lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        cellMargem.innerText = margemPercent.toFixed(2).replace('.', ',') + "%";
+        
+        cellLucro.className = 'profit-cell ' + (lucroTotal < 0 ? 'negative' : 'positive');
+        
+        let margemClass = 'positive';
+        if(margemPercent < 0) margemClass = 'negative';
+        else if(margemPercent < 30) margemClass = 'neutral';
+        cellMargem.className = 'margin-cell ' + margemClass;
     }
-    salvar();
+    if (dispararSave) salvar();
 }
 
 function atualizarTotaisGerais() {
-    let tCusto = 0, tVenda = 0, tLucro = 0;
-    const linhas = document.querySelectorAll('#lista tr');
+    let totalCusto = 0; let totalVenda = 0; let totalLucro = 0;
+    const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        if(inputs.length >= 4) {
-            const qtd = parseInt(inputs[1].value) || 0;
-            const custo = lerNumero(inputs[2].value);
-            const venda = lerNumero(inputs[3].value);
-            tCusto += custo * qtd; tVenda += venda * qtd; tLucro += (venda - custo) * qtd;
-        }
+        const qtd = parseInt(inputs[1].value) || 0;
+        const custoUn = lerNumero(inputs[2].value);
+        const vendaUn = lerNumero(inputs[3].value);
+        totalCusto += (custoUn * qtd);
+        totalVenda += (vendaUn * qtd);
+        totalLucro += ((vendaUn - custoUn) * qtd);
     });
-    document.getElementById('totalCusto').innerText = "R$ " + tCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    document.getElementById('totalVenda').innerText = "R$ " + tVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    
+    document.getElementById('totalCusto').innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('totalVenda').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     const elLucro = document.getElementById('totalLucro');
-    elLucro.innerText = "R$ " + tLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    elLucro.className = 'profit-cell ' + (tLucro >= 0 ? 'positive' : 'negative');
+    elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
 }
 
-function salvar() {
-    const inputs = document.querySelectorAll('#lista input');
-    inputs.forEach(i => i.setAttribute('value', i.value));
-    const resizers = document.querySelectorAll('.row-resizer');
-    resizers.forEach(r => { if(r.style.height) r.setAttribute('style', `height:${r.style.height}`); });
-    localStorage.setItem('visionBlackV6', lista.innerHTML);
-    atualizarTotaisGerais();
+/* --- ALTERAÇÃO NA FUNÇÃO novoItem --- */
+function novoItem(retornarElemento = false) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td><div class="resizable-box"><input type="text" oninput="salvar()"></div></td>
+        <td><div class="resizable-box"><input type="tel" value="1" class="qtd-input" oninput="calcular(this)"></div></td>
+        <td><div class="resizable-box"><input type="tel" placeholder="0,00" oninput="calcular(this)"></div></td>
+        <td><div class="resizable-box"><input type="tel" placeholder="0,00" oninput="calcular(this)"></div></td>
+        <td class="profit-cell">R$ 0,00</td>
+        <td class="margin-cell" style="text-align: right;">0,00%</td>
+        <td style="text-align: center;">
+            <div class="row-resizer">
+                <div class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+        </td>
+    `;
+    lista.appendChild(tr);
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (!retornarElemento) salvar();
+    return tr;
+}
+
+function apagar(btn) {
+    if(confirm('Apagar item?')) { btn.closest('tr').remove(); salvar(); }
 }
 
 function reativarEventos() {
-    const linhas = document.querySelectorAll('#lista tr');
+    const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        if(inputs.length >= 4) {
-            inputs[0].addEventListener('input', salvar);
-            inputs[1].addEventListener('input', function(){ calcular(this) });
-            inputs[2].addEventListener('input', function(){ formatarMoeda(this); calcular(this) });
-            inputs[3].addEventListener('input', function(){ formatarMoeda(this); calcular(this) });
-        }
+        inputs[0].oninput = function() { salvar(); };
+        inputs[1].oninput = function() { calcular(this); };
+        inputs[2].oninput = function() { calcular(this); };
+        inputs[3].oninput = function() { calcular(this); };
     });
 }
 
+function atualizarStatus(texto, cor) {
+    const s = document.getElementById('status');
+    if(s) { s.innerHTML = texto; s.style.color = cor; }
+}
+
 function limpar() {
-    if(confirm('Limpar toda a tabela?')) {
-        localStorage.removeItem('visionBlackV6');
+    if(confirm('Limpar tudo?')) {
+        try{ localStorage.removeItem('visionBlackV6'); }catch(e){}
         lista.innerHTML = ''; novoItem(); atualizarTotaisGerais();
     }
 }
 
+// ============================================================
+// LÓGICA DO MENU E PDF (Corrigida)
+// ============================================================
+
 function alternarMenu() {
+    console.log("Abrindo menu..."); // Debug
     const menu = document.getElementById("menuPDF");
-    if(menu) menu.classList.toggle("mostrar");
+    if (menu) menu.classList.toggle("mostrar");
 }
 
-window.onclick = function(e) {
-    if (!e.target.closest('.dropdown-container')) {
+window.onclick = function(event) {
+    if (!event.target.closest('.dropdown-container')) {
         const menu = document.getElementById("menuPDF");
-        if (menu && menu.classList.contains('mostrar')) menu.classList.remove('mostrar');
+        if (menu && menu.classList.contains('mostrar')) {
+            menu.classList.remove('mostrar');
+        }
     }
 }
 
-async function buscarDaNuvem() { console.log("Nuvem pendente..."); }
-async function enviarParaNuvem() { alert('Configure o Firebase primeiro.'); }
-
 async function gerarPDF(tipo) {
-    const menu = document.getElementById("menuPDF"); if (menu) menu.classList.remove("mostrar");
-    if (!window.jspdf) { alert("Erro PDF"); return; }
-    const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
-    const dados = [];
-    document.querySelectorAll('#lista tr').forEach(tr => {
+    // 1. Fecha Menu
+    const menu = document.getElementById("menuPDF");
+    if (menu) menu.classList.remove("mostrar");
+
+    // 2. Verifica Biblioteca
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Erro: A biblioteca jspdf não carregou corretamente.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // 3. Captura Dados
+    const linhas = document.querySelectorAll('#lista tr');
+    const dadosParaPDF = [];
+
+    linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        if(inputs.length >= 2 && inputs[0].value.trim() !== "") {
-            const prod = inputs[0].value.toUpperCase(); const qtd = inputs[1].value;
-            if(tipo === 'completo') {
-                dados.push([prod, qtd, inputs[2].value, inputs[3].value, tr.querySelector('.profit-cell').innerText, tr.querySelector('.margin-cell').innerText]);
-            } else { dados.push([prod, qtd, "[ ] CONFERIDO"]); }
+        // Proteção contra linha vazia ou inputs não carregados
+        if (!inputs || inputs.length < 2) return;
+
+        const produto = inputs[0].value ? inputs[0].value.toUpperCase() : "";
+        const qtd = inputs[1].value || "0";
+        
+        if (produto.trim() === "") return;
+
+        if (tipo === 'completo') {
+            const custo = inputs[2].value || "0,00";
+            const venda = inputs[3].value || "0,00";
+            const lucro = tr.querySelector('.profit-cell') ? tr.querySelector('.profit-cell').innerText : "0,00";
+            const margem = tr.querySelector('.margin-cell') ? tr.querySelector('.margin-cell').innerText : "0%";
+            dadosParaPDF.push([produto, qtd, custo, venda, lucro, margem]);
+        } else {
+            dadosParaPDF.push([produto, qtd, "   [   ] CONFERIDO"]); 
         }
     });
-    if(dados.length === 0) { alert("Tabela vazia!"); return; }
-    doc.autoTable({
-        head: [tipo === 'completo' ? ['ITEM', 'QTD', 'CUSTO', 'VENDA', 'LUCRO', 'MARGEM'] : ['ITEM', 'QTD', 'CONFERÊNCIA']],
-        body: dados, theme: 'grid', styles: { fontSize: 9, cellPadding: 3 }, headStyles: { fillColor: [40, 40, 40] }
-    });
-    doc.save("Relatorio_ERP.pdf");
+
+    if (dadosParaPDF.length === 0) {
+        alert("A tabela está vazia!");
+        return;
+    }
+
+    // 4. Configura Colunas
+    let colunas = [];
+    let tituloRelatorio = "";
+
+    if (tipo === 'completo') {
+        tituloRelatorio = "RELATÓRIO FINANCEIRO - BLACK LIPS ERP";
+        colunas = [
+            { header: 'PRODUTO', dataKey: '0' },
+            { header: 'QTD', dataKey: '1' },
+            { header: 'CUSTO', dataKey: '2' },
+            { header: 'VENDA', dataKey: '3' },
+            { header: 'LUCRO', dataKey: '4' },
+            { header: 'MARGEM', dataKey: '5' }
+        ];
+    } else {
+        tituloRelatorio = "ORDEM DE SEPARAÇÃO DE ESTOQUE";
+        colunas = [
+            { header: 'ITEM / DESCRIÇÃO', dataKey: '0' },
+            { header: 'QTD', dataKey: '1' },
+            { header: 'CONFERÊNCIA', dataKey: '2' }
+        ];
+    }
+
+    // 5. Cabeçalho
+    doc.setFontSize(16);
+    doc.setTextColor(30, 30, 30);
+    doc.text("BLACK LIPS ERP", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(tituloRelatorio, 14, 28);
+    doc.text("Gerado em: " + new Date().toLocaleString(), 14, 33);
+
+    // 6. Tabela AutoTable
+    if (doc.autoTable) {
+        doc.autoTable({
+            head: [colunas.map(c => c.header)],
+            body: dadosParaPDF,
+            startY: 40,
+            theme: 'grid',
+            pageBreak: 'auto',
+            rowPageBreak: 'avoid',
+            styles: { fontSize: 9, valign: 'middle', overflow: 'linebreak', cellPadding: 3, lineColor: [200, 200, 200] },
+            headStyles: { fillColor: [45, 45, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
+            columnStyles: {
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 15, halign: 'center' },
+                2: { halign: tipo === 'completo' ? 'right' : 'left' },
+                3: { halign: 'right' },
+                4: { halign: 'right' },
+                5: { halign: 'right' }
+            },
+            didDrawPage: function (data) {
+                let str = 'Página ' + doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                let pageSize = doc.internal.pageSize;
+                let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                doc.text(str, data.settings.margin.left, pageHeight - 10);
+            }
+        });
+        doc.save(tipo === 'completo' ? "Financeiro_BlackLips.pdf" : "Lista_Separacao.pdf");
+    } else {
+        alert("Erro: O plugin AutoTable não foi carregado. Tente recarregar a página.");
+    }
 }
