@@ -2,11 +2,14 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Black Lips | SAP Dark Edition (Functional)</title>
+    <title>Black Lips | SAP Dark Edition (Hub)</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="section_hub.css">
+
+    <script src="section_hub.js" defer></script>
 </head>
 <body>
 
@@ -77,11 +80,10 @@
 
                             <div id="screen-matriz" class="screen-content">
                                 <h2 style="color:var(--accent-purple); font-size:14px; margin-bottom:10px;">Manutenção de Preços (Lucro Real)</h2>
-                                <table class="fake-grid">
-                                    <tr><th>MATERIAL</th><th>DESCRIÇÃO</th><th>CUSTO</th><th>PREÇO</th></tr>
-                                    <tr><td>SRV-001</td><td>Consultoria TI</td><td>R$ 150,00</td><td>R$ 450,00</td></tr>
-                                    <tr><td>SRV-002</td><td>Manutenção</td><td>R$ 50,00</td><td>R$ 120,00</td></tr>
-                                </table>
+                                <iframe src="margin_analysis.html" 
+                                    style="width: 100%; height: 100%; border: none; display: block;"
+                                    title="Matriz de Preço">
+                                </iframe>
                             </div>
 
                             <div id="screen-custos" class="screen-content">
@@ -102,6 +104,5 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
 </body>
 </html>
