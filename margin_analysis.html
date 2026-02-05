@@ -18,7 +18,6 @@
     </div>
 
     <div class="erp-window">
-        
         <div class="toolbar">
             <div class="brand">
                 <i class="fa-brands fa-buffer"></i> BLACK LIPS ERP 
@@ -29,13 +28,11 @@
                 <span id="status" style="color: #858585; font-size: 11px; margin-right: 10px;">
                     <i class="fa-solid fa-check"></i> Pronto
                 </span>
-
                 <button onclick="limpar()" class="btn-tool btn-clean" title="Limpar Tudo">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
-
                 <div class="separator"></div>
-
+                
                 <div class="dropdown-container">
                     <button onclick="alternarMenu()" class="btn-tool btn-pdf">
                         <i class="fa-solid fa-file-pdf"></i> PDF <i class="fa-solid fa-caret-down"></i>
@@ -43,17 +40,11 @@
                     <div id="menuPDF" class="dropdown-menu">
                         <div class="opcao-item" onclick="gerarPDF('completo')">
                             <i class="fa-solid fa-file-invoice-dollar icone"></i>
-                            <div class="texto">
-                                <span class="titulo">Relatório Financeiro</span>
-                                <span class="descricao">Completo com custos e lucro</span>
-                            </div>
+                            <div class="texto"><span class="titulo">Relatório Financeiro</span></div>
                         </div>
                         <div class="opcao-item" onclick="gerarPDF('separacao')">
                             <i class="fa-solid fa-box-open icone"></i>
-                            <div class="texto">
-                                <span class="titulo">Lista de Separação</span>
-                                <span class="descricao">Apenas produto e quantidade</span>
-                            </div>
+                            <div class="texto"><span class="titulo">Lista de Separação</span></div>
                         </div>
                     </div>
                 </div>
@@ -77,8 +68,7 @@
                     </tr>
                 </thead>
                 
-                <tbody id="lista">
-                    </tbody>
+                <tbody id="lista"></tbody>
 
                 <tfoot>
                     <tr class="total-row">
@@ -103,109 +93,4 @@
     <script src="margin_analysis.js"></script>
 
 </body>
-</html><!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Black Lips ERP | Módulo de Preços</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="margin_analysis.css">
-</head>
-<body>
-
-    <div id="loadingOverlay" style="display: none;">
-        <div class="spinner"></div>
-        <div class="loading-text">CARREGANDO...</div>
-    </div>
-
-    <div class="erp-window">
-        
-        <div class="toolbar">
-            <div class="brand">
-                <i class="fa-brands fa-buffer"></i> BLACK LIPS ERP 
-                <span class="version-tag">v6.0 PIXELS</span>
-            </div>
-            
-            <div class="toolbar-actions">
-                <span id="status" style="color: #858585; font-size: 11px; margin-right: 10px;">
-                    <i class="fa-solid fa-check"></i> Pronto
-                </span>
-
-                <button onclick="limpar()" class="btn-tool btn-clean" title="Limpar Tudo">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-
-                <div class="separator"></div>
-
-                <div class="dropdown-container">
-                    <button onclick="alternarMenu()" class="btn-tool btn-pdf">
-                        <i class="fa-solid fa-file-pdf"></i> PDF <i class="fa-solid fa-caret-down"></i>
-                    </button>
-                    <div id="menuPDF" class="dropdown-menu">
-                        <div class="opcao-item" onclick="gerarPDF('completo')">
-                            <i class="fa-solid fa-file-invoice-dollar icone"></i>
-                            <div class="texto">
-                                <span class="titulo">Relatório Financeiro</span>
-                                <span class="descricao">Completo com custos e lucro</span>
-                            </div>
-                        </div>
-                        <div class="opcao-item" onclick="gerarPDF('separacao')">
-                            <i class="fa-solid fa-box-open icone"></i>
-                            <div class="texto">
-                                <span class="titulo">Lista de Separação</span>
-                                <span class="descricao">Apenas produto e quantidade</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button onclick="enviarParaNuvem()" class="btn-tool btn-save">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Salvar
-                </button>
-            </div>
-        </div>
-
-        <div class="data-grid-container">
-            <table class="data-grid">
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">DESCRIÇÃO DO PRODUTO</th>
-                        <th style="width: 10%; text-align: center;">QTD</th>
-                        <th style="width: 15%; text-align: right;">CUSTO (UN)</th>
-                        <th style="width: 15%; text-align: right;">VENDA (UN)</th>
-                        <th style="width: 12%; text-align: right;">LUCRO TOTAL</th>
-                        <th style="width: 8%; text-align: right;">MARGEM</th>
-                    </tr>
-                </thead>
-                
-                <tbody id="lista">
-                    </tbody>
-
-                <tfoot>
-                    <tr class="total-row">
-                        <td colspan="2">TOTAIS GERAIS:</td>
-                        <td id="totalCusto">R$ 0,00</td>
-                        <td id="totalVenda">R$ 0,00</td>
-                        <td id="totalLucro">R$ 0,00</td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
-            
-            <button onclick="novoItem()" class="btn-tool" style="margin: 10px; background: #eee; color: #000; font-weight: bold;">
-                <i class="fa-solid fa-plus"></i> Adicionar Nova Linha
-            </button>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
-    <script src="margin_analysis.js"></script>
-
-</body>
-</html>vv
+</html>
