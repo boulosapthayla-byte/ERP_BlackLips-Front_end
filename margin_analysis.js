@@ -1,16 +1,11 @@
-/* ============================================================
-   BLACK LIPS ERP - JS BLINDADO
-   ============================================================ */
+/* BLACK LIPS ERP - JS FINAL & LIMPO */
 
-const API_URL = "https://erp-blacklips-api.onrender.com"; // Placeholder
+const API_URL = "https://erp-blacklips-api.onrender.com";
 const lista = document.getElementById('lista');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-// 1. CARREGAMENTO INICIAL
 window.onload = function() {
-    // Esconde o loading inicialmente para não travar
     if (loadingOverlay) loadingOverlay.style.display = 'none';
-
     try {
         const dadosLocais = localStorage.getItem('visionBlackV6');
         if (dadosLocais && dadosLocais.trim() !== "") {
@@ -18,20 +13,14 @@ window.onload = function() {
             reativarEventos();
             atualizarTotaisGerais();
         } else {
-            novoItem(); // Se estiver vazio, cria uma linha
+            novoItem();
         }
-    } catch (e) {
-        console.error(e);
-        novoItem();
-    }
-    
-    // Tenta buscar da nuvem em segundo plano
+    } catch (e) { novoItem(); }
     buscarDaNuvem(); 
 };
 
-// 2. FUNÇÕES GLOBAIS (Para o HTML acessar)
 window.novoItem = novoItem;
-window.apagar = removerLinha; // Redireciona 'apagar' para 'removerLinha'
+window.apagar = removerLinha; 
 window.removerLinha = removerLinha;
 window.salvar = salvar;
 window.formatarMoeda = formatarMoeda;
@@ -41,33 +30,31 @@ window.gerarPDF = gerarPDF;
 window.enviarParaNuvem = enviarParaNuvem;
 window.limpar = limpar;
 
-/* --- LÓGICA DE CRIAÇÃO DE LINHAS (COMPATÍVEL COM CSS) --- */
 function novoItem(retornarLinha = false) {
     const tbody = document.getElementById('lista');
     if (!tbody) return;
-
     const tr = document.createElement("tr");
 
-    // HTML ESTRUTURADO COM 'resizable-box'
+    // ADICIONEI 'name' NOS INPUTS PARA PARAR O AVISO AMARELO
     tr.innerHTML = `
         <td style="height: 1px;">
             <div class="resizable-box">
-                <input type="text" placeholder="Item..." style="text-align: left;">
+                <input type="text" name="produto" placeholder="Item..." style="text-align: left;">
             </div>
         </td>
         <td style="height: 1px;">
             <div class="resizable-box">
-                <input type="tel" class="qtd-input" value="1" oninput="calcular(this)">
+                <input type="tel" name="qtd" class="qtd-input" value="1" oninput="calcular(this)">
             </div>
         </td>
         <td style="height: 1px;">
             <div class="resizable-box">
-                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcular(this)">
+                <input type="tel" name="custo" value="0,00" oninput="formatarMoeda(this); calcular(this)">
             </div>
         </td>
         <td style="height: 1px;">
             <div class="resizable-box">
-                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcular(this)">
+                <input type="tel" name="venda" value="0,00" oninput="formatarMoeda(this); calcular(this)">
             </div>
         </td>
         <td class="profit-cell">R$ 0,00</td>
@@ -78,17 +65,10 @@ function novoItem(retornarLinha = false) {
             </button>
         </td>
     `;
-
     tbody.appendChild(tr);
-    
-    // Adiciona eventos de salvamento automático
     const inputs = tr.querySelectorAll('input');
     inputs[0].addEventListener('input', salvar);
-
-    if(!retornarLinha) {
-        inputs[0].focus();
-        salvar();
-    }
+    if(!retornarLinha) { inputs[0].focus(); salvar(); }
     return tr;
 }
 
@@ -101,7 +81,6 @@ function removerLinha(btn) {
     }
 }
 
-/* --- CÁLCULOS E FORMATAÇÃO --- */
 function formatarMoeda(elemento) {
     let valor = elemento.value.replace(/\D/g, "");
     valor = (parseFloat(valor) / 100).toFixed(2) + "";
@@ -120,34 +99,24 @@ function lerNumero(val) {
 function calcular(input) {
     const tr = input.closest('tr');
     const inputs = tr.querySelectorAll('input');
-    
-    // Atualiza atributo value para salvar no HTML
     input.setAttribute('value', input.value);
-
     const qtd = parseInt(inputs[1].value) || 0;
     const custo = lerNumero(inputs[2].value);
     const venda = lerNumero(inputs[3].value);
-    
     const profitCell = tr.querySelector('.profit-cell');
     const marginCell = tr.querySelector('.margin-cell');
 
     if (venda === 0) {
-        profitCell.innerText = "R$ 0,00";
-        marginCell.innerText = "0,00%";
-        profitCell.className = 'profit-cell';
-        marginCell.className = 'margin-cell';
+        profitCell.innerText = "R$ 0,00"; marginCell.innerText = "0,00%";
+        profitCell.className = 'profit-cell'; marginCell.className = 'margin-cell';
     } else {
         const lucro = (venda - custo) * qtd;
         const margem = ((venda - custo) / venda) * 100;
-
         profitCell.innerText = "R$ " + lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         marginCell.innerText = margem.toFixed(2).replace('.', ',') + "%";
-
         profitCell.className = 'profit-cell ' + (lucro < 0 ? 'negative' : 'positive');
-        
         let mClass = 'positive';
-        if(margem < 0) mClass = 'negative';
-        else if(margem < 30) mClass = 'neutral';
+        if(margem < 0) mClass = 'negative'; else if(margem < 30) mClass = 'neutral';
         marginCell.className = 'margin-cell ' + mClass;
     }
     salvar();
@@ -156,19 +125,15 @@ function calcular(input) {
 function atualizarTotaisGerais() {
     let tCusto = 0, tVenda = 0, tLucro = 0;
     const linhas = document.querySelectorAll('#lista tr');
-    
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
         if(inputs.length >= 4) {
             const qtd = parseInt(inputs[1].value) || 0;
             const custo = lerNumero(inputs[2].value);
             const venda = lerNumero(inputs[3].value);
-            tCusto += custo * qtd;
-            tVenda += venda * qtd;
-            tLucro += (venda - custo) * qtd;
+            tCusto += custo * qtd; tVenda += venda * qtd; tLucro += (venda - custo) * qtd;
         }
     });
-
     document.getElementById('totalCusto').innerText = "R$ " + tCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     document.getElementById('totalVenda').innerText = "R$ " + tVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     const elLucro = document.getElementById('totalLucro');
@@ -179,13 +144,8 @@ function atualizarTotaisGerais() {
 function salvar() {
     const inputs = document.querySelectorAll('#lista input');
     inputs.forEach(i => i.setAttribute('value', i.value));
-    
-    // Salva a altura das linhas (resize)
     const resizers = document.querySelectorAll('.row-resizer');
-    resizers.forEach(r => {
-        if(r.style.height) r.setAttribute('style', `height:${r.style.height}`);
-    });
-
+    resizers.forEach(r => { if(r.style.height) r.setAttribute('style', `height:${r.style.height}`); });
     localStorage.setItem('visionBlackV6', lista.innerHTML);
     atualizarTotaisGerais();
 }
@@ -206,13 +166,10 @@ function reativarEventos() {
 function limpar() {
     if(confirm('Limpar toda a tabela?')) {
         localStorage.removeItem('visionBlackV6');
-        lista.innerHTML = '';
-        novoItem();
-        atualizarTotaisGerais();
+        lista.innerHTML = ''; novoItem(); atualizarTotaisGerais();
     }
 }
 
-/* --- PDF, MENU E NUVEM --- */
 function alternarMenu() {
     const menu = document.getElementById("menuPDF");
     if(menu) menu.classList.toggle("mostrar");
@@ -225,54 +182,27 @@ window.onclick = function(e) {
     }
 }
 
-async function buscarDaNuvem() {
-    // Placeholder - Adicione lógica do Firebase aqui quando tiver as chaves
-    console.log("Tentando conectar nuvem...");
-}
-
-async function enviarParaNuvem() {
-    const btn = document.querySelector('.btn-save');
-    if(btn) {
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Salvar';
-            alert('Configuração de nuvem pendente (Falta Firebase Config). Dados salvos localmente.');
-        }, 1000);
-    }
-}
+async function buscarDaNuvem() { console.log("Nuvem pendente..."); }
+async function enviarParaNuvem() { alert('Configure o Firebase primeiro.'); }
 
 async function gerarPDF(tipo) {
-    const menu = document.getElementById("menuPDF");
-    if (menu) menu.classList.remove("mostrar");
-
-    if (!window.jspdf) { alert("Erro na biblioteca PDF"); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-
+    const menu = document.getElementById("menuPDF"); if (menu) menu.classList.remove("mostrar");
+    if (!window.jspdf) { alert("Erro PDF"); return; }
+    const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
     const dados = [];
     document.querySelectorAll('#lista tr').forEach(tr => {
         const inputs = tr.querySelectorAll('input');
         if(inputs.length >= 2 && inputs[0].value.trim() !== "") {
-            const prod = inputs[0].value.toUpperCase();
-            const qtd = inputs[1].value;
+            const prod = inputs[0].value.toUpperCase(); const qtd = inputs[1].value;
             if(tipo === 'completo') {
-                dados.push([prod, qtd, inputs[2].value, inputs[3].value, 
-                           tr.querySelector('.profit-cell').innerText, 
-                           tr.querySelector('.margin-cell').innerText]);
-            } else {
-                dados.push([prod, qtd, "[ ] CONFERIDO"]);
-            }
+                dados.push([prod, qtd, inputs[2].value, inputs[3].value, tr.querySelector('.profit-cell').innerText, tr.querySelector('.margin-cell').innerText]);
+            } else { dados.push([prod, qtd, "[ ] CONFERIDO"]); }
         }
     });
-
     if(dados.length === 0) { alert("Tabela vazia!"); return; }
-
     doc.autoTable({
         head: [tipo === 'completo' ? ['ITEM', 'QTD', 'CUSTO', 'VENDA', 'LUCRO', 'MARGEM'] : ['ITEM', 'QTD', 'CONFERÊNCIA']],
-        body: dados,
-        theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 3 },
-        headStyles: { fillColor: [40, 40, 40] }
+        body: dados, theme: 'grid', styles: { fontSize: 9, cellPadding: 3 }, headStyles: { fillColor: [40, 40, 40] }
     });
     doc.save("Relatorio_ERP.pdf");
 }
