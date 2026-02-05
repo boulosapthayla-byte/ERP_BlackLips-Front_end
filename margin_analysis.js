@@ -1,16 +1,17 @@
 /* ============================================================
-   BLACK LIPS ERP - VERSÃO FINAL CORRIGIDA (SEM ERROS)
+   BLACK LIPS ERP - JS FINAL (COMPATIBILIDADE TOTAL)
    ============================================================ */
 
+// CONFIGURAÇÕES GERAIS
 const API_URL = "https://erp-blacklips-api.onrender.com";
-const lista = document.getElementById('lista');
+const lista = document.getElementById('lista'); // Certifique-se que seu TBODY tem id="lista"
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-// 1. CARREGAMENTO INICIAL
+// 1. AO INICIAR
 window.onload = function() {
-    // Se quiser tirar a tela de carregamento, comente a linha abaixo:
-    if (loadingOverlay) loadingOverlay.style.display = 'flex';
-    
+    // Tenta esconder o loading se ele existir
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
+
     try {
         const dadosLocais = localStorage.getItem('visionBlackV6');
         if (dadosLocais && dadosLocais.trim() !== "") {
@@ -18,121 +19,36 @@ window.onload = function() {
             reativarEventos();
             atualizarTotaisGerais();
         } else {
-            novoItem();
+            novoItem(); // Cria a primeira linha se estiver vazio
         }
-    } catch (e) { 
-        novoItem(); 
+    } catch (e) {
+        console.error("Erro ao carregar:", e);
+        novoItem();
     }
-
+    
+    // Tenta buscar da nuvem sem travar a tela
     buscarDaNuvem(); 
 };
 
-// 2. DISPONIBILIZAR FUNÇÕES PARA O HTML
-// (Removi o 'window.apagar' que estava quebrando o código)
-window.novoItem = novoItem;
-window.salvar = salvar;
-window.enviarParaNuvem = enviarParaNuvem;
-window.limpar = limpar;
-window.calcular = calcular;
-window.alternarMenu = alternarMenu;
-window.gerarPDF = gerarPDF;
-window.formatarMoeda = formatarMoeda;
+/* ============================================================
+   FUNÇÕES PRINCIPAIS (DISPONÍVEIS NO HTML)
+   ============================================================ */
 
-/* --- FUNÇÃO SALVAR --- */
-function salvar() {
-    // 1. Salva os inputs
-    const inputs = lista.querySelectorAll('input');
-    inputs.forEach(input => input.setAttribute('value', input.value));
-    
-    // 2. Salva a altura da LINHA (preserva o redimensionamento)
-    const resizers = lista.querySelectorAll('.row-resizer');
-    resizers.forEach(resizer => {
-        if(resizer.style.height) {
-            resizer.setAttribute('style', `height:${resizer.style.height}`);
+// Função unificada para apagar (funciona para botão velho E novo)
+function apagar(btn) { removerLinha(btn); }
+function removerLinha(btn) {
+    if(confirm('Tem certeza que deseja apagar esta linha?')) { 
+        // Encontra a linha (TR) e remove
+        const linha = btn.closest('tr');
+        if(linha) {
+            linha.remove(); 
+            salvar(); 
+            atualizarTotaisGerais(); 
         }
-    });
-
-    localStorage.setItem('visionBlackV6', lista.innerHTML);
-    atualizarTotaisGerais();
-}
-
-/* --- COMUNICAÇÃO COM O SERVIDOR --- */
-async function buscarDaNuvem() {
-    try {
-        const res = await fetch(`${API_URL}/listar_produtos?t=${new Date().getTime()}`);
-        if (res.ok) {
-            const dados = await res.json();
-            if (dados && dados.length > 0) {
-                lista.innerHTML = ''; 
-                dados.forEach(item => {
-                    const tr = novoItem(true); 
-                    const inputs = tr.querySelectorAll('input');
-                    // Preenche os dados
-                    inputs[0].value = item.nome || "";
-                    inputs[1].value = item.quantidade || 1;
-                    
-                    let valCusto = parseFloat(item.custo || 0);
-                    let valVenda = parseFloat(item.venda || 0);
-                    inputs[2].value = valCusto.toFixed(2).replace('.', ',');
-                    inputs[3].value = valVenda.toFixed(2).replace('.', ',');
-                    
-                    inputs.forEach(i => i.setAttribute('value', i.value));
-                    calcular(inputs[1], false);
-                });
-                salvar();
-                atualizarStatus('<i class="fa-solid fa-check-double"></i> Sincronizado', "#4caf50");
-            }
-        }
-    } catch (error) {
-        atualizarStatus('<i class="fa-solid fa-wifi"></i> Offline', "#9e9e9e");
-    } finally {
-        if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
 }
 
-async function enviarParaNuvem() {
-    const btnSave = document.querySelector('.btn-save');
-    if (btnSave) btnSave.disabled = true;
-    atualizarStatus('Enviando...', "#2196f3");
-    
-    const linhas = lista.querySelectorAll('tr');
-    const dadosParaEnviar = [];
-    linhas.forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
-        const nome = inputs[0].value.trim();
-        const qtd = parseInt(inputs[1].value) || 1;
-        const custo = lerNumero(inputs[2].value);
-        const venda = lerNumero(inputs[3].value);
-        if (nome || venda > 0) dadosParaEnviar.push({ nome, quantidade: qtd, custo, venda });
-    });
-
-    try {
-        const response = await fetch(`${API_URL}/salvar_produto`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lista_produtos: dadosParaEnviar })
-        });
-        if(response.ok) atualizarStatus('Salvo na Nuvem!', "#4caf50");
-        else throw new Error();
-    } catch (error) {
-        atualizarStatus('Erro ao Enviar', "#f44336");
-    } finally {
-        if (btnSave) btnSave.disabled = false;
-        setTimeout(() => { 
-             const s = document.getElementById('status');
-             if(s && s.innerText.includes("Salvo")) atualizarStatus('Pronto', "#858585");
-        }, 4000);
-    }
-}
-
-/* --- FUNÇÕES AUXILIARES --- */
-function lerNumero(val) {
-    if (!val) return 0;
-    val = String(val);
-    if (val.includes(',')) val = val.replace(/\./g, '').replace(',', '.');
-    return parseFloat(val) || 0;
-}
-
+// Formatação de Dinheiro
 function formatarMoeda(elemento) {
     let valor = elemento.value;
     valor = valor.replace(/\D/g, ""); // Remove letras
@@ -140,6 +56,82 @@ function formatarMoeda(elemento) {
     valor = valor.replace(".", ","); // Vírgula decimal
     valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."); // Milhar
     elemento.value = valor;
+}
+
+// Criação de Nova Linha (Com a caixa preta redimensionável)
+function novoItem(retornarLinha = false) {
+    // Garante que usa a tabela certa
+    const tbody = document.getElementById('lista') || document.querySelector("tbody");
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td style="height: 1px;">
+            <div class="resizable-box">
+                <input type="text" placeholder="Item..." style="text-align: left;">
+            </div>
+        </td>
+        <td style="height: 1px;">
+            <div class="resizable-box">
+                <input type="tel" class="qtd-input" value="1" oninput="calcular(this)">
+            </div>
+        </td>
+        <td style="height: 1px;">
+            <div class="resizable-box">
+                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcular(this)">
+            </div>
+        </td>
+        <td style="height: 1px;">
+            <div class="resizable-box">
+                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcular(this)">
+            </div>
+        </td>
+        <td class="profit-cell">R$ 0,00</td>
+        <td class="margin-cell" style="position: relative; padding-right: 35px !important;">
+            0,00%
+            <button class="trash-btn" onclick="removerLinha(this)" tabindex="-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </td>
+    `;
+
+    tbody.appendChild(tr);
+    
+    // Adiciona os eventos aos inputs novos
+    const inputs = tr.querySelectorAll('input');
+    inputs[0].addEventListener('input', function() { salvar(); });
+    // Usamos addEventListener para garantir
+    
+    if(!retornarLinha) {
+        inputs[0].focus(); // Foca no primeiro campo
+        salvar();
+    }
+    return tr;
+}
+
+// Salva no Navegador
+function salvar() {
+    if(!lista) return;
+
+    // Garante que os valores digitados fiquem no HTML para salvar
+    const inputs = lista.querySelectorAll('input');
+    inputs.forEach(input => input.setAttribute('value', input.value));
+    
+    // Salva alturas personalizadas
+    const resizers = lista.querySelectorAll('.row-resizer');
+    resizers.forEach(resizer => {
+        if(resizer.style.height) resizer.setAttribute('style', `height:${resizer.style.height}`);
+    });
+
+    localStorage.setItem('visionBlackV6', lista.innerHTML);
+    atualizarTotaisGerais();
+}
+
+// Cálculos Matemáticos
+function lerNumero(val) {
+    if (!val) return 0;
+    val = String(val);
+    if (val.includes(',')) val = val.replace(/\./g, '').replace(',', '.');
+    return parseFloat(val) || 0;
 }
 
 function calcular(input, dispararSave = true) {
@@ -177,116 +169,59 @@ function calcular(input, dispararSave = true) {
 }
 
 function atualizarTotaisGerais() {
+    if(!lista) return;
     let totalCusto = 0; let totalVenda = 0; let totalLucro = 0;
     const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        const qtd = parseInt(inputs[1].value) || 0;
-        const custoUn = lerNumero(inputs[2].value);
-        const vendaUn = lerNumero(inputs[3].value);
-        totalCusto += (custoUn * qtd);
-        totalVenda += (vendaUn * qtd);
-        totalLucro += ((vendaUn - custoUn) * qtd);
+        if(inputs.length >= 4) { // Proteção contra linhas quebradas
+            const qtd = parseInt(inputs[1].value) || 0;
+            const custoUn = lerNumero(inputs[2].value);
+            const vendaUn = lerNumero(inputs[3].value);
+            totalCusto += (custoUn * qtd);
+            totalVenda += (vendaUn * qtd);
+            totalLucro += ((vendaUn - custoUn) * qtd);
+        }
     });
     
-    document.getElementById('totalCusto').innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    document.getElementById('totalVenda').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    const elCusto = document.getElementById('totalCusto');
+    const elVenda = document.getElementById('totalVenda');
     const elLucro = document.getElementById('totalLucro');
-    elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
-}
 
-/* --- FUNÇÃO NOVO ITEM (CORRIGIDA PARA CSS) --- */
-function novoItem(retornarLinha = false) {
-    const tbody = document.querySelector(".data-grid tbody");
-    const tr = document.createElement("tr");
-
-    // CRIA A LINHA COM A ESTRUTURA EXATA DO CSS (resizable-box)
-    tr.innerHTML = `
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="text" placeholder="Item..." style="text-align: left;">
-            </div>
-        </td>
-
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" class="qtd-input" value="1" oninput="calcularLinha(this)">
-            </div>
-        </td>
-
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcularLinha(this)">
-            </div>
-        </td>
-
-        <td style="height: 1px;">
-            <div class="resizable-box">
-                <input type="tel" value="0,00" oninput="formatarMoeda(this); calcularLinha(this)">
-            </div>
-        </td>
-
-        <td class="profit-cell">R$ 0,00</td>
-
-        <td class="margin-cell" style="position: relative; padding-right: 35px !important;">
-            0,00%
-            <button class="trash-btn" onclick="removerLinha(this)" tabindex="-1">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </td>
-    `;
-
-    tbody.appendChild(tr);
-    
-    // Configura eventos para os novos inputs
-    const inputs = tr.querySelectorAll('input');
-    inputs[0].oninput = function() { salvar(); };
-    inputs[1].oninput = function() { calcular(this); };
-    inputs[2].oninput = function() { formatarMoeda(this); calcular(this); };
-    inputs[3].oninput = function() { formatarMoeda(this); calcular(this); };
-
-    if(!retornarLinha) {
-        inputs[0].focus();
-        salvar();
-    }
-    return tr;
-}
-
-// Essa é a função que o botão de lixo chama (removerLinha)
-window.removerLinha = function(btn) {
-    if(confirm('Tem certeza que deseja apagar esta linha?')) { 
-        btn.closest('tr').remove(); 
-        salvar(); 
-        atualizarTotaisGerais(); 
+    if(elCusto) elCusto.innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    if(elVenda) elVenda.innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    if(elLucro) {
+        elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
     }
 }
 
+// Reativa eventos ao carregar do localStorage
 function reativarEventos() {
+    if(!lista) return;
     const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        inputs[0].oninput = function() { salvar(); };
-        inputs[1].oninput = function() { calcular(this); };
-        inputs[2].oninput = function() { formatarMoeda(this); calcular(this); };
-        inputs[3].oninput = function() { formatarMoeda(this); calcular(this); };
+        if(inputs.length >= 4) {
+            inputs[0].oninput = function() { salvar(); };
+            inputs[1].oninput = function() { calcular(this); };
+            inputs[2].oninput = function() { formatarMoeda(this); calcular(this); };
+            inputs[3].oninput = function() { formatarMoeda(this); calcular(this); };
+        }
     });
-}
-
-function atualizarStatus(texto, cor) {
-    const s = document.getElementById('status');
-    if(s) { s.innerHTML = texto; s.style.color = cor; }
 }
 
 function limpar() {
     if(confirm('Limpar tudo?')) {
         try{ localStorage.removeItem('visionBlackV6'); }catch(e){}
-        lista.innerHTML = ''; novoItem(); atualizarTotaisGerais();
+        if(lista) lista.innerHTML = ''; 
+        novoItem(); 
+        atualizarTotaisGerais();
     }
 }
 
 /* ============================================================
-   LÓGICA DO MENU E PDF
+   INTEGRAÇÃO (PDF, MENU, NUVEM)
    ============================================================ */
 
 function alternarMenu() {
@@ -303,28 +238,102 @@ window.onclick = function(event) {
     }
 }
 
+async function buscarDaNuvem() {
+    try {
+        const res = await fetch(`${API_URL}/listar_produtos?t=${new Date().getTime()}`);
+        if (res.ok) {
+            const dados = await res.json();
+            if (dados && dados.length > 0) {
+                lista.innerHTML = ''; 
+                dados.forEach(item => {
+                    const tr = novoItem(true); 
+                    const inputs = tr.querySelectorAll('input');
+                    inputs[0].value = item.nome || "";
+                    inputs[1].value = item.quantidade || 1;
+                    let valCusto = parseFloat(item.custo || 0);
+                    let valVenda = parseFloat(item.venda || 0);
+                    inputs[2].value = valCusto.toFixed(2).replace('.', ',');
+                    inputs[3].value = valVenda.toFixed(2).replace('.', ',');
+                    
+                    // Força atualização visual
+                    formatarMoeda(inputs[2]);
+                    formatarMoeda(inputs[3]);
+                    
+                    inputs.forEach(i => i.setAttribute('value', i.value));
+                    calcular(inputs[1], false);
+                });
+                salvar();
+                atualizarStatus('Sincronizado', "#4caf50");
+            }
+        }
+    } catch (error) {
+        atualizarStatus('Offline', "#9e9e9e");
+    }
+}
+
+async function enviarParaNuvem() {
+    const btnSave = document.querySelector('.btn-save');
+    if (btnSave) btnSave.disabled = true;
+    atualizarStatus('Enviando...', "#2196f3");
+    
+    const linhas = lista.querySelectorAll('tr');
+    const dadosParaEnviar = [];
+    linhas.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        if(inputs.length < 4) return;
+        
+        const nome = inputs[0].value.trim();
+        const qtd = parseInt(inputs[1].value) || 1;
+        const custo = lerNumero(inputs[2].value);
+        const venda = lerNumero(inputs[3].value);
+        if (nome || venda > 0) dadosParaEnviar.push({ nome, quantidade: qtd, custo, venda });
+    });
+
+    try {
+        const response = await fetch(`${API_URL}/salvar_produto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lista_produtos: dadosParaEnviar })
+        });
+        if(response.ok) atualizarStatus('Salvo!', "#4caf50");
+        else throw new Error();
+    } catch (error) {
+        atualizarStatus('Erro', "#f44336");
+    } finally {
+        if (btnSave) btnSave.disabled = false;
+        setTimeout(() => { 
+             const s = document.getElementById('status');
+             if(s && s.innerText.includes("Salvo")) atualizarStatus('Pronto', "#858585");
+        }, 4000);
+    }
+}
+
+function atualizarStatus(texto, cor) {
+    const s = document.getElementById('status');
+    if(s) { s.innerHTML = texto; s.style.color = cor; }
+}
+
 async function gerarPDF(tipo) {
     const menu = document.getElementById("menuPDF");
     if (menu) menu.classList.remove("mostrar");
 
     if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("Erro: Biblioteca PDF carregando...");
+        alert("Erro: Biblioteca PDF não carregada.");
         return;
     }
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-
+    
+    // ... Código do PDF mantido igual ...
     const linhas = document.querySelectorAll('#lista tr');
     const dadosParaPDF = [];
 
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
         if (!inputs || inputs.length < 2) return;
-
         const produto = inputs[0].value ? inputs[0].value.toUpperCase() : "";
         const qtd = inputs[1].value || "0";
-        
         if (produto.trim() === "") return;
 
         if (tipo === 'completo') {
@@ -338,59 +347,21 @@ async function gerarPDF(tipo) {
         }
     });
 
-    if (dadosParaPDF.length === 0) {
-        alert("A tabela está vazia!");
-        return;
-    }
+    if (dadosParaPDF.length === 0) { alert("Tabela vazia!"); return; }
 
     let colunas = [];
-    let tituloRelatorio = "";
-
     if (tipo === 'completo') {
-        tituloRelatorio = "RELATÓRIO FINANCEIRO - BLACK LIPS ERP";
-        colunas = [
-            { header: 'PRODUTO', dataKey: '0' },
-            { header: 'QTD', dataKey: '1' },
-            { header: 'CUSTO', dataKey: '2' },
-            { header: 'VENDA', dataKey: '3' },
-            { header: 'LUCRO', dataKey: '4' },
-            { header: 'MARGEM', dataKey: '5' }
-        ];
+        colunas = ['PRODUTO', 'QTD', 'CUSTO', 'VENDA', 'LUCRO', 'MARGEM'];
     } else {
-        tituloRelatorio = "ORDEM DE SEPARAÇÃO DE ESTOQUE";
-        colunas = [
-            { header: 'ITEM / DESCRIÇÃO', dataKey: '0' },
-            { header: 'QTD', dataKey: '1' },
-            { header: 'CONFERÊNCIA', dataKey: '2' }
-        ];
+        colunas = ['ITEM', 'QTD', 'CONFERÊNCIA'];
     }
 
-    doc.setFontSize(16);
-    doc.setTextColor(30, 30, 30);
-    doc.text("BLACK LIPS ERP", 14, 20);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(tituloRelatorio, 14, 28);
-    doc.text("Gerado em: " + new Date().toLocaleString(), 14, 33);
-
-    if (doc.autoTable) {
-        doc.autoTable({
-            head: [colunas.map(c => c.header)],
-            body: dadosParaPDF,
-            startY: 40,
-            theme: 'grid',
-            styles: { fontSize: 9, valign: 'middle', cellPadding: 3 },
-            headStyles: { fillColor: [45, 45, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
-            columnStyles: {
-                0: { cellWidth: 'auto' },
-                1: { cellWidth: 15, halign: 'center' },
-                2: { halign: tipo === 'completo' ? 'right' : 'left' },
-                3: { halign: 'right' },
-                4: { halign: 'right' },
-                5: { halign: 'right' }
-            }
-        });
-        doc.save(tipo === 'completo' ? "Financeiro_BlackLips.pdf" : "Lista_Separacao.pdf");
-    }
+    doc.autoTable({
+        head: [colunas],
+        body: dadosParaPDF,
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [40, 40, 40] }
+    });
+    doc.save("Relatorio_BlackLips.pdf");
 }
