@@ -6,7 +6,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="margin_analysis.css">
+    <link rel="stylesheet" href="style.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     
@@ -14,7 +14,7 @@
     
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js" defer></script>
     
-    <script src="margin_analysis.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
 
@@ -105,15 +105,140 @@
             <button class="trash-btn" onclick="apagar(this)" style=""><i class="fa-solid fa-xmark"></i></button>
         </td>
     </tr></tbody>
-                <tfoot style="">
-                    <tr class="total-row">
-                        <td colspan="2" style="text-align: right; padding-right: 15px;">TOTAIS GERAIS:</td>
-                        <td id="totalCusto">R$ 0,00</td>
-                        <td id="totalVenda">R$ 0,00</td>
-                        <td id="totalLucro" class="profit-cell positive">R$ 0,00</td>
-                        <td colspan="2"></td>
+<tfoot style="">
+    <tr class="total-row">
+        <td colspan="2">TOTAIS GERAIS:</td>
+        <td id="totalCusto">R$ 0,00</td>
+        <td id="totalVenda">R$ 0,00</td>
+        <td id="totalLucro" class="profit-cell positive">R$ 0,00</td>
+        <td colspan="2"></td> 
+    </tr>
+    </tfoot>
+            </table>
+            
+            <div class="footer-actions">
+                <button class="btn-add-row" onclick="novoItem()" style="">
+                    <i class="fa-solid fa-plus"></i> Adicionar Nova Linha
+                </button>
+          
+        </div></div>
+
+</body></html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate"> 
+    <title>Black Lips | Enterprise ERP</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js" defer></script>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js" defer></script>
+    
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <div id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">CARREGANDO SISTEMA...</div>
+    </div>
+
+    <div class="erp-window">
+        <header class="toolbar">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group" style="color: var(--accent-purple);"></i>
+                <span>BLACK LIPS ERP</span>
+                <span class="version-tag">v6.0 PIXELS</span>
+            </div>
+            <div class="toolbar-actions">
+                <span id="status" class="status-indicator"><i class="fa-solid fa-circle-check"></i> Pronto</span>
+                <div class="separator"></div>
+                <button class="btn-tool btn-clean" onclick="limpar()" title="Limpar"><i class="fa-solid fa-trash-can"></i></button>
+                <div class="dropdown-container">
+    
+    <button class="btn-tool btn-pdf" onclick="alternarMenu()" title="Opções de PDF">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span class="btn-text">PDF</span> <i class="fa-solid fa-caret-down" style="font-size: 10px; margin-left: 5px;"></i>
+    </button>
+
+    <div id="menuPDF" class="dropdown-menu">
+        
+        <div class="opcao-item" onclick="gerarPDF('completo')">
+            <span class="icone">📄</span>
+            <div class="texto">
+                <span class="titulo">Relatório Financeiro</span>
+                <span class="descricao">Completo com custos e lucro</span>
+            </div>
+        </div>
+
+        <div class="opcao-item" onclick="gerarPDF('simples')">
+            <span class="icone">📦</span>
+            <div class="texto">
+                <span class="titulo">Lista de Separação</span>
+                <span class="descricao">Apenas produto e quantidade</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+                <button class="btn-tool btn-save" onclick="enviarParaNuvem()" title="Salvar"><i class="fa-solid fa-cloud-arrow-up"></i> <span class="btn-text">Salvar</span></button>
+            </div>
+        </header>
+
+        <div class="data-grid-container" id="printArea" style="">
+            <table class="data-grid">
+                <thead>
+                    <tr>
+                        <th style="width: 320px;">DESCRIÇÃO DO PRODUTO</th>
+                        <th style="width: 80px; text-align: center;">QTD</th>
+                        <th style="width: 120px;">CUSTO (UN)</th>
+                        <th style="width: 120px;">VENDA (UN)</th>
+                        <th style="width: 130px;">LUCRO TOTAL</th>
+                        <th style="width: 100px; text-align: right;">MARGEM</th>
+                        <th style="width: 60px;"></th>
                     </tr>
-                </tfoot>
+                </thead>
+                <tbody id="lista"><tr>
+        <td>
+            <div class="resizable-box">
+                <input type="text" oninput="salvar()" value="" style="">
+            </div>
+        </td>
+        <td>
+            <div class="resizable-box">
+                <input type="tel" value="1" class="qtd-input" oninput="calcular(this)" style="">
+            </div>
+        </td>
+        <td>
+            <div class="resizable-box">
+                <input type="tel" placeholder="0,00" oninput="calcular(this)" value="" style="">
+            </div>
+        </td>
+        <td>
+            <div class="resizable-box">
+                <input type="tel" placeholder="0,00" oninput="calcular(this)" value="" style="">
+            </div>
+        </td>
+        <td class="profit-cell">R$ 0,00</td>
+        <td class="margin-cell" style="text-align: right;">0,00%</td>
+        <td style="text-align: center;">
+            <button class="trash-btn" onclick="apagar(this)" style=""><i class="fa-solid fa-xmark"></i></button>
+        </td>
+    </tr></tbody>
+<tfoot style="">
+    <tr class="total-row">
+        <td colspan="2">TOTAIS GERAIS:</td>
+        <td id="totalCusto">R$ 0,00</td>
+        <td id="totalVenda">R$ 0,00</td>
+        <td id="totalLucro" class="profit-cell positive">R$ 0,00</td>
+        <td colspan="2"></td> 
+    </tr>
+    </tfoot>
             </table>
             
             <div class="footer-actions">
