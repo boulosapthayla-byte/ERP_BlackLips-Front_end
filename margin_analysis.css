@@ -374,12 +374,15 @@ input[type="tel"], .profit-cell, .margin-cell { font-family: 'JetBrains Mono', m
 
 /* RESULTADOS (Não redimensionáveis para não quebrar layout) */
 
+/* RESULTADOS (Alinhado: 35px de altura e 8px de canto) */
 .profit-cell, .margin-cell {
-
-    padding: 0 10px; line-height: 38px; font-weight: bold;
-
+    padding: 0 8px !important;     /* Era 10px, agora é 8px para alinhar com o input */
+    line-height: 35px !important;  /* Era 33px, agora é 35px para centrar na linha */
+    height: 35px !important;       /* Garante a altura da linha */
+    
+    font-weight: bold;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-
+    vertical-align: middle !important;
 }
 
 .positive { color: #4caf50; } .neutral { color: #ff9800; } .negative { color: #f44336; }
@@ -412,24 +415,30 @@ input[type="tel"], .profit-cell, .margin-cell { font-family: 'JetBrains Mono', m
 
 /* RODAPÉ DE TOTAIS */
 
+/* RODAPÉ DE TOTAIS (Alinhado: 35px de altura e 8px de canto) */
 tfoot {
-
     position: sticky; bottom: 0; z-index: 5;
-
     background: #1e1e1e; border-top: 3px solid var(--accent-purple);
-
     box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-
 }
 
 .total-row td {
-
     color: #fff; font-weight: bold; font-family: 'JetBrains Mono', monospace;
-
-    background: #2d2d30; padding: 0 10px; height: 45px; vertical-align: middle;
-
+    background: #2d2d30; 
+    
+    padding: 0 8px !important;    /* Era 10px, agora 8px */
+    height: 35px !important;      /* Era 45px, agora 35px (igual a tabela) */
+    line-height: 35px !important; /* Força o texto pro meio */
+    
+    vertical-align: middle !important;
+    text-align: right !important; /* Garante que alinhe com os números de cima */
 }
 
+/* 👇 ADICIONE ISTO AQUI PARA O TÍTULO IR PARA A ESQUERDA 👇 */
+.total-row td:first-child {
+    text-align: left !important;   /* Título na Esquerda */
+    padding-left: 10px !important; /* Alinha com "Descrição do Produto" */
+}
 
 
 /* LOADING */
@@ -459,92 +468,34 @@ tfoot {
 
 
 /* ============================================================
-
-   CORREÇÃO DE ALTURA (EMAGRECER AS CÉLULAS)
-
-   Cole no FINAL do style.css para corrigir o tamanho "Gigante"
-
+   CORREÇÃO DE ALTURA (EMAGRECER AS CÉLULAS + ESTICAR INPUT)
    ============================================================ */
 
-
-
-/* 1. Tira o inchaço da Célula Principal */
-
+/* 1. A Célula: O truque do 1px faz ela aceitar a altura do filho (100%) */
 .data-grid td {
     padding: 0 !important;
-    height: auto !important;     /* <--- MUDOU AQUI (Libera o crescimento) */
-    min-height: 35px !important; /* <--- ADICIONOU AQUI (Segura o tamanho mínimo) */
-    vertical-align: middle !important;
+    height: 1px !important; /* <--- AQUI ESTÁ A CIRURGIA */
+    vertical-align: top !important;
 }
 
-
-
-/* 2. Ajusta a caixa de redimensionar para caber na linha fina */
-
+/* 2. A Caixa: 'Stretch' força o conteúdo a esticar de cima a baixo */
 .resizable-box {
-
-    min-height: 35px !important; /* Mesma altura da linha */
-
+    min-height: 35px !important;
     height: 100% !important;
-
     display: flex !important;
-
-    align-items: center !important; /* Centraliza o texto verticalmente */
-
+    align-items: stretch !important; /* <--- OBRIGA O PRETO A PREENCHER TUDO */
 }
 
-
-
-/* 3. Ajusta o Input para não empurrar as bordas */
-
+/* 3. O Input: Removemos travas de linha para ele fluir */
 .resizable-box input {
-
     height: 100% !important;
-
-    padding-top: 0 !important;
-
-    padding-bottom: 0 !important;
-
-    line-height: 35px !important; /* Texto fica exatamente no meio */
-
-    
-
-    /* Mantém o alinhamento SAP (Direita/Esquerda) que configuramos antes */
-
-    /* Apenas ajusta o espaço lateral para não colar na borda */
-
-    padding-left: 8px !important; 
-
-    padding-right: 8px !important;
-
+    line-height: normal !important; /* Destrava a altura do texto */
+    padding: 0 8px !important;      /* Mantém seu espaçamento lateral */
+    box-sizing: border-box !important;
 }
 
-
-
-/* 4. Garante que o alinhamento SAP continue funcionando */
-
-/* Dinheiro na Direita */
-
-.data-grid td:nth-child(3) input, 
-
-.data-grid td:nth-child(4) input {
-
-    text-align: right !important;
-
-}
-
-/* Quantidade no Centro */
-
-.data-grid td:nth-child(2) input {
-
-    text-align: center !important;
-
-}
-
-/* Produto na Esquerda */
-
-.data-grid td:nth-child(1) input {
-
-    text-align: left !important;
-
-}
+/* 4. Mantém seus alinhamentos SAP (Direita/Esquerda/Centro) */
+.data-grid td:nth-child(1) input { text-align: left !important; }
+.data-grid td:nth-child(2) input { text-align: center !important; }
+.data-grid td:nth-child(3) input { text-align: right !important; }
+.data-grid td:nth-child(4) input { text-align: right !important; }
