@@ -1,15 +1,14 @@
 /* ============================================================
-   BLACK LIPS ERP - JS FINAL (COMPATIBILIDADE TOTAL)
+   BLACK LIPS ERP - JS BLINDADO
    ============================================================ */
 
-// CONFIGURAÇÕES GERAIS
-const API_URL = "https://erp-blacklips-api.onrender.com";
-const lista = document.getElementById('lista'); // Certifique-se que seu TBODY tem id="lista"
+const API_URL = "https://erp-blacklips-api.onrender.com"; // Placeholder
+const lista = document.getElementById('lista');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-// 1. AO INICIAR
+// 1. CARREGAMENTO INICIAL
 window.onload = function() {
-    // Tenta esconder o loading se ele existir
+    // Esconde o loading inicialmente para não travar
     if (loadingOverlay) loadingOverlay.style.display = 'none';
 
     try {
@@ -19,51 +18,37 @@ window.onload = function() {
             reativarEventos();
             atualizarTotaisGerais();
         } else {
-            novoItem(); // Cria a primeira linha se estiver vazio
+            novoItem(); // Se estiver vazio, cria uma linha
         }
     } catch (e) {
-        console.error("Erro ao carregar:", e);
+        console.error(e);
         novoItem();
     }
     
-    // Tenta buscar da nuvem sem travar a tela
+    // Tenta buscar da nuvem em segundo plano
     buscarDaNuvem(); 
 };
 
-/* ============================================================
-   FUNÇÕES PRINCIPAIS (DISPONÍVEIS NO HTML)
-   ============================================================ */
+// 2. FUNÇÕES GLOBAIS (Para o HTML acessar)
+window.novoItem = novoItem;
+window.apagar = removerLinha; // Redireciona 'apagar' para 'removerLinha'
+window.removerLinha = removerLinha;
+window.salvar = salvar;
+window.formatarMoeda = formatarMoeda;
+window.calcular = calcular;
+window.alternarMenu = alternarMenu;
+window.gerarPDF = gerarPDF;
+window.enviarParaNuvem = enviarParaNuvem;
+window.limpar = limpar;
 
-// Função unificada para apagar (funciona para botão velho E novo)
-function apagar(btn) { removerLinha(btn); }
-function removerLinha(btn) {
-    if(confirm('Tem certeza que deseja apagar esta linha?')) { 
-        // Encontra a linha (TR) e remove
-        const linha = btn.closest('tr');
-        if(linha) {
-            linha.remove(); 
-            salvar(); 
-            atualizarTotaisGerais(); 
-        }
-    }
-}
-
-// Formatação de Dinheiro
-function formatarMoeda(elemento) {
-    let valor = elemento.value;
-    valor = valor.replace(/\D/g, ""); // Remove letras
-    valor = (parseFloat(valor) / 100).toFixed(2) + ""; // Divide por 100
-    valor = valor.replace(".", ","); // Vírgula decimal
-    valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."); // Milhar
-    elemento.value = valor;
-}
-
-// Criação de Nova Linha (Com a caixa preta redimensionável)
+/* --- LÓGICA DE CRIAÇÃO DE LINHAS (COMPATÍVEL COM CSS) --- */
 function novoItem(retornarLinha = false) {
-    // Garante que usa a tabela certa
-    const tbody = document.getElementById('lista') || document.querySelector("tbody");
-    
+    const tbody = document.getElementById('lista');
+    if (!tbody) return;
+
     const tr = document.createElement("tr");
+
+    // HTML ESTRUTURADO COM 'resizable-box'
     tr.innerHTML = `
         <td style="height: 1px;">
             <div class="resizable-box">
@@ -96,37 +81,35 @@ function novoItem(retornarLinha = false) {
 
     tbody.appendChild(tr);
     
-    // Adiciona os eventos aos inputs novos
+    // Adiciona eventos de salvamento automático
     const inputs = tr.querySelectorAll('input');
-    inputs[0].addEventListener('input', function() { salvar(); });
-    // Usamos addEventListener para garantir
-    
+    inputs[0].addEventListener('input', salvar);
+
     if(!retornarLinha) {
-        inputs[0].focus(); // Foca no primeiro campo
+        inputs[0].focus();
         salvar();
     }
     return tr;
 }
 
-// Salva no Navegador
-function salvar() {
-    if(!lista) return;
-
-    // Garante que os valores digitados fiquem no HTML para salvar
-    const inputs = lista.querySelectorAll('input');
-    inputs.forEach(input => input.setAttribute('value', input.value));
-    
-    // Salva alturas personalizadas
-    const resizers = lista.querySelectorAll('.row-resizer');
-    resizers.forEach(resizer => {
-        if(resizer.style.height) resizer.setAttribute('style', `height:${resizer.style.height}`);
-    });
-
-    localStorage.setItem('visionBlackV6', lista.innerHTML);
-    atualizarTotaisGerais();
+function removerLinha(btn) {
+    if(confirm('Tem certeza que deseja apagar?')) {
+        const linha = btn.closest('tr');
+        if(linha) linha.remove();
+        salvar();
+        atualizarTotaisGerais();
+    }
 }
 
-// Cálculos Matemáticos
+/* --- CÁLCULOS E FORMATAÇÃO --- */
+function formatarMoeda(elemento) {
+    let valor = elemento.value.replace(/\D/g, "");
+    valor = (parseFloat(valor) / 100).toFixed(2) + "";
+    valor = valor.replace(".", ",");
+    valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    elemento.value = valor;
+}
+
 function lerNumero(val) {
     if (!val) return 0;
     val = String(val);
@@ -134,234 +117,162 @@ function lerNumero(val) {
     return parseFloat(val) || 0;
 }
 
-function calcular(input, dispararSave = true) {
+function calcular(input) {
     const tr = input.closest('tr');
     const inputs = tr.querySelectorAll('input');
-    input.setAttribute('value', input.value); 
     
-    const qtd = parseInt(inputs[1].value) || 0;
-    const custoUn = lerNumero(inputs[2].value);
-    const vendaUn = lerNumero(inputs[3].value);
-    
-    const cellLucro = tr.querySelector('.profit-cell');
-    const cellMargem = tr.querySelector('.margin-cell');
+    // Atualiza atributo value para salvar no HTML
+    input.setAttribute('value', input.value);
 
-    if (vendaUn === 0) {
-        cellLucro.innerText = "R$ 0,00";
-        cellMargem.innerText = "0,00%";
-        cellLucro.className = 'profit-cell';
-        cellMargem.className = 'margin-cell';
+    const qtd = parseInt(inputs[1].value) || 0;
+    const custo = lerNumero(inputs[2].value);
+    const venda = lerNumero(inputs[3].value);
+    
+    const profitCell = tr.querySelector('.profit-cell');
+    const marginCell = tr.querySelector('.margin-cell');
+
+    if (venda === 0) {
+        profitCell.innerText = "R$ 0,00";
+        marginCell.innerText = "0,00%";
+        profitCell.className = 'profit-cell';
+        marginCell.className = 'margin-cell';
     } else {
-        const lucroTotal = (vendaUn - custoUn) * qtd;
-        const margemPercent = ((vendaUn - custoUn) / vendaUn) * 100;
+        const lucro = (venda - custo) * qtd;
+        const margem = ((venda - custo) / venda) * 100;
+
+        profitCell.innerText = "R$ " + lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        marginCell.innerText = margem.toFixed(2).replace('.', ',') + "%";
+
+        profitCell.className = 'profit-cell ' + (lucro < 0 ? 'negative' : 'positive');
         
-        cellLucro.innerText = "R$ " + lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        cellMargem.innerText = margemPercent.toFixed(2).replace('.', ',') + "%";
-        
-        cellLucro.className = 'profit-cell ' + (lucroTotal < 0 ? 'negative' : 'positive');
-        
-        let margemClass = 'positive';
-        if(margemPercent < 0) margemClass = 'negative';
-        else if(margemPercent < 30) margemClass = 'neutral';
-        cellMargem.className = 'margin-cell ' + margemClass;
+        let mClass = 'positive';
+        if(margem < 0) mClass = 'negative';
+        else if(margem < 30) mClass = 'neutral';
+        marginCell.className = 'margin-cell ' + mClass;
     }
-    if (dispararSave) salvar();
+    salvar();
 }
 
 function atualizarTotaisGerais() {
-    if(!lista) return;
-    let totalCusto = 0; let totalVenda = 0; let totalLucro = 0;
-    const linhas = lista.querySelectorAll('tr');
-    linhas.forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
-        if(inputs.length >= 4) { // Proteção contra linhas quebradas
-            const qtd = parseInt(inputs[1].value) || 0;
-            const custoUn = lerNumero(inputs[2].value);
-            const vendaUn = lerNumero(inputs[3].value);
-            totalCusto += (custoUn * qtd);
-            totalVenda += (vendaUn * qtd);
-            totalLucro += ((vendaUn - custoUn) * qtd);
-        }
-    });
+    let tCusto = 0, tVenda = 0, tLucro = 0;
+    const linhas = document.querySelectorAll('#lista tr');
     
-    const elCusto = document.getElementById('totalCusto');
-    const elVenda = document.getElementById('totalVenda');
-    const elLucro = document.getElementById('totalLucro');
-
-    if(elCusto) elCusto.innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    if(elVenda) elVenda.innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    if(elLucro) {
-        elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
-    }
-}
-
-// Reativa eventos ao carregar do localStorage
-function reativarEventos() {
-    if(!lista) return;
-    const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
         if(inputs.length >= 4) {
-            inputs[0].oninput = function() { salvar(); };
-            inputs[1].oninput = function() { calcular(this); };
-            inputs[2].oninput = function() { formatarMoeda(this); calcular(this); };
-            inputs[3].oninput = function() { formatarMoeda(this); calcular(this); };
+            const qtd = parseInt(inputs[1].value) || 0;
+            const custo = lerNumero(inputs[2].value);
+            const venda = lerNumero(inputs[3].value);
+            tCusto += custo * qtd;
+            tVenda += venda * qtd;
+            tLucro += (venda - custo) * qtd;
+        }
+    });
+
+    document.getElementById('totalCusto').innerText = "R$ " + tCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('totalVenda').innerText = "R$ " + tVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    const elLucro = document.getElementById('totalLucro');
+    elLucro.innerText = "R$ " + tLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    elLucro.className = 'profit-cell ' + (tLucro >= 0 ? 'positive' : 'negative');
+}
+
+function salvar() {
+    const inputs = document.querySelectorAll('#lista input');
+    inputs.forEach(i => i.setAttribute('value', i.value));
+    
+    // Salva a altura das linhas (resize)
+    const resizers = document.querySelectorAll('.row-resizer');
+    resizers.forEach(r => {
+        if(r.style.height) r.setAttribute('style', `height:${r.style.height}`);
+    });
+
+    localStorage.setItem('visionBlackV6', lista.innerHTML);
+    atualizarTotaisGerais();
+}
+
+function reativarEventos() {
+    const linhas = document.querySelectorAll('#lista tr');
+    linhas.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        if(inputs.length >= 4) {
+            inputs[0].addEventListener('input', salvar);
+            inputs[1].addEventListener('input', function(){ calcular(this) });
+            inputs[2].addEventListener('input', function(){ formatarMoeda(this); calcular(this) });
+            inputs[3].addEventListener('input', function(){ formatarMoeda(this); calcular(this) });
         }
     });
 }
 
 function limpar() {
-    if(confirm('Limpar tudo?')) {
-        try{ localStorage.removeItem('visionBlackV6'); }catch(e){}
-        if(lista) lista.innerHTML = ''; 
-        novoItem(); 
+    if(confirm('Limpar toda a tabela?')) {
+        localStorage.removeItem('visionBlackV6');
+        lista.innerHTML = '';
+        novoItem();
         atualizarTotaisGerais();
     }
 }
 
-/* ============================================================
-   INTEGRAÇÃO (PDF, MENU, NUVEM)
-   ============================================================ */
-
+/* --- PDF, MENU E NUVEM --- */
 function alternarMenu() {
     const menu = document.getElementById("menuPDF");
-    if (menu) menu.classList.toggle("mostrar");
+    if(menu) menu.classList.toggle("mostrar");
 }
 
-window.onclick = function(event) {
-    if (!event.target.closest('.dropdown-container')) {
+window.onclick = function(e) {
+    if (!e.target.closest('.dropdown-container')) {
         const menu = document.getElementById("menuPDF");
-        if (menu && menu.classList.contains('mostrar')) {
-            menu.classList.remove('mostrar');
-        }
+        if (menu && menu.classList.contains('mostrar')) menu.classList.remove('mostrar');
     }
 }
 
 async function buscarDaNuvem() {
-    try {
-        const res = await fetch(`${API_URL}/listar_produtos?t=${new Date().getTime()}`);
-        if (res.ok) {
-            const dados = await res.json();
-            if (dados && dados.length > 0) {
-                lista.innerHTML = ''; 
-                dados.forEach(item => {
-                    const tr = novoItem(true); 
-                    const inputs = tr.querySelectorAll('input');
-                    inputs[0].value = item.nome || "";
-                    inputs[1].value = item.quantidade || 1;
-                    let valCusto = parseFloat(item.custo || 0);
-                    let valVenda = parseFloat(item.venda || 0);
-                    inputs[2].value = valCusto.toFixed(2).replace('.', ',');
-                    inputs[3].value = valVenda.toFixed(2).replace('.', ',');
-                    
-                    // Força atualização visual
-                    formatarMoeda(inputs[2]);
-                    formatarMoeda(inputs[3]);
-                    
-                    inputs.forEach(i => i.setAttribute('value', i.value));
-                    calcular(inputs[1], false);
-                });
-                salvar();
-                atualizarStatus('Sincronizado', "#4caf50");
-            }
-        }
-    } catch (error) {
-        atualizarStatus('Offline', "#9e9e9e");
-    }
+    // Placeholder - Adicione lógica do Firebase aqui quando tiver as chaves
+    console.log("Tentando conectar nuvem...");
 }
 
 async function enviarParaNuvem() {
-    const btnSave = document.querySelector('.btn-save');
-    if (btnSave) btnSave.disabled = true;
-    atualizarStatus('Enviando...', "#2196f3");
-    
-    const linhas = lista.querySelectorAll('tr');
-    const dadosParaEnviar = [];
-    linhas.forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
-        if(inputs.length < 4) return;
-        
-        const nome = inputs[0].value.trim();
-        const qtd = parseInt(inputs[1].value) || 1;
-        const custo = lerNumero(inputs[2].value);
-        const venda = lerNumero(inputs[3].value);
-        if (nome || venda > 0) dadosParaEnviar.push({ nome, quantidade: qtd, custo, venda });
-    });
-
-    try {
-        const response = await fetch(`${API_URL}/salvar_produto`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lista_produtos: dadosParaEnviar })
-        });
-        if(response.ok) atualizarStatus('Salvo!', "#4caf50");
-        else throw new Error();
-    } catch (error) {
-        atualizarStatus('Erro', "#f44336");
-    } finally {
-        if (btnSave) btnSave.disabled = false;
-        setTimeout(() => { 
-             const s = document.getElementById('status');
-             if(s && s.innerText.includes("Salvo")) atualizarStatus('Pronto', "#858585");
-        }, 4000);
+    const btn = document.querySelector('.btn-save');
+    if(btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Salvar';
+            alert('Configuração de nuvem pendente (Falta Firebase Config). Dados salvos localmente.');
+        }, 1000);
     }
-}
-
-function atualizarStatus(texto, cor) {
-    const s = document.getElementById('status');
-    if(s) { s.innerHTML = texto; s.style.color = cor; }
 }
 
 async function gerarPDF(tipo) {
     const menu = document.getElementById("menuPDF");
     if (menu) menu.classList.remove("mostrar");
 
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("Erro: Biblioteca PDF não carregada.");
-        return;
-    }
-
+    if (!window.jspdf) { alert("Erro na biblioteca PDF"); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    
-    // ... Código do PDF mantido igual ...
-    const linhas = document.querySelectorAll('#lista tr');
-    const dadosParaPDF = [];
 
-    linhas.forEach(tr => {
+    const dados = [];
+    document.querySelectorAll('#lista tr').forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        if (!inputs || inputs.length < 2) return;
-        const produto = inputs[0].value ? inputs[0].value.toUpperCase() : "";
-        const qtd = inputs[1].value || "0";
-        if (produto.trim() === "") return;
-
-        if (tipo === 'completo') {
-            const custo = inputs[2].value || "0,00";
-            const venda = inputs[3].value || "0,00";
-            const lucro = tr.querySelector('.profit-cell') ? tr.querySelector('.profit-cell').innerText : "0,00";
-            const margem = tr.querySelector('.margin-cell') ? tr.querySelector('.margin-cell').innerText : "0%";
-            dadosParaPDF.push([produto, qtd, custo, venda, lucro, margem]);
-        } else {
-            dadosParaPDF.push([produto, qtd, "   [   ] CONFERIDO"]); 
+        if(inputs.length >= 2 && inputs[0].value.trim() !== "") {
+            const prod = inputs[0].value.toUpperCase();
+            const qtd = inputs[1].value;
+            if(tipo === 'completo') {
+                dados.push([prod, qtd, inputs[2].value, inputs[3].value, 
+                           tr.querySelector('.profit-cell').innerText, 
+                           tr.querySelector('.margin-cell').innerText]);
+            } else {
+                dados.push([prod, qtd, "[ ] CONFERIDO"]);
+            }
         }
     });
 
-    if (dadosParaPDF.length === 0) { alert("Tabela vazia!"); return; }
-
-    let colunas = [];
-    if (tipo === 'completo') {
-        colunas = ['PRODUTO', 'QTD', 'CUSTO', 'VENDA', 'LUCRO', 'MARGEM'];
-    } else {
-        colunas = ['ITEM', 'QTD', 'CONFERÊNCIA'];
-    }
+    if(dados.length === 0) { alert("Tabela vazia!"); return; }
 
     doc.autoTable({
-        head: [colunas],
-        body: dadosParaPDF,
+        head: [tipo === 'completo' ? ['ITEM', 'QTD', 'CUSTO', 'VENDA', 'LUCRO', 'MARGEM'] : ['ITEM', 'QTD', 'CONFERÊNCIA']],
+        body: dados,
         theme: 'grid',
         styles: { fontSize: 9, cellPadding: 3 },
         headStyles: { fillColor: [40, 40, 40] }
     });
-    doc.save("Relatorio_BlackLips.pdf");
+    doc.save("Relatorio_ERP.pdf");
 }
