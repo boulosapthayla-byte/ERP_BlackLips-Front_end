@@ -478,20 +478,23 @@ tfoot {
     vertical-align: top !important;
 }
 
-/* 2. A Caixa: 'Stretch' força o conteúdo a esticar de cima a baixo */
+/* 2. Ajusta a caixa para ESTICAR (Stretch) e não centralizar */
 .resizable-box {
-    min-height: 35px !important;
+    min-height: 35px !important; 
     height: 100% !important;
     display: flex !important;
-    align-items: stretch !important; /* <--- OBRIGA O PRETO A PREENCHER TUDO */
+    align-items: stretch !important; /* <--- MUDANÇA: 'stretch' faz a caixa preta crescer junto */
 }
 
-/* 3. O Input: Removemos travas de linha para ele fluir */
+/* 3. Ajusta o Input para crescer junto */
 .resizable-box input {
     height: 100% !important;
-    line-height: normal !important; /* Destrava a altura do texto */
-    padding: 0 8px !important;      /* Mantém seu espaçamento lateral */
-    box-sizing: border-box !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: normal !important; /* <--- MUDANÇA: 'normal' deixa o texto se ajustar sozinho */
+    
+    padding-left: 8px !important; 
+    padding-right: 8px !important;
 }
 
 /* 4. Mantém seus alinhamentos SAP (Direita/Esquerda/Centro) */
