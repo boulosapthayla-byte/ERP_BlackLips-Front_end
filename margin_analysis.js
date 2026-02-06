@@ -360,3 +360,16 @@ async function gerarPDF(tipo) {
         alert("Erro: O plugin AutoTable não foi carregado. Tente recarregar a página.");
     }
 }
+
+// ============================================================
+// FUNÇÃO DE VOLTAR AO HUB (O QUE FALTAVA)
+// ============================================================
+
+function voltarAoHub() {
+    // Redireciona para o arquivo do menu principal
+    window.location.href = "section_hub.html";
+}
+
+// Disponibiliza para o HTML usar no onclick
+window.voltarAoHub = voltarAoHub;
+
