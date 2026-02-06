@@ -17,7 +17,15 @@
     <script src="margin_analysis.js" defer></script>
 </head>
 <body>
-
+<div class="sap-breadcrumb">
+    <button onclick="voltarAoHub()" class="btn-sap-back" title="Voltar (ESC)">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    
+    <span class="sap-path-root">SAP Easy Access</span>
+    <i class="fa-solid fa-angle-right sap-separator"></i>
+    <span class="sap-path-current">Z_PRICE_MATRIX</span>
+</div>
     <div id="loadingOverlay" style="display: none;">
         <div class="spinner"></div>
         <div class="loading-text" id="loadingText">CARREGANDO SISTEMA...</div>
