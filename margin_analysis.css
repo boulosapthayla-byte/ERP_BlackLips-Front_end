@@ -73,6 +73,38 @@ body {
     /* --------------------------------------------- */
 }
 
+/* --- COLE ISTO LOGO ABAIXO DE .sap-breadcrumb { ... } --- */
+
+/* O LINK DE VOLTAR (Correção Crítica para Tablet) */
+.sap-path-link {
+    color: #b0b0b0;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s;
+    
+    /* 👇 A MÁGICA ANTI-SELEÇÃO DO TABLET 👇 */
+    -webkit-user-select: none;   /* Chrome/Safari Mobile */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    user-select: none;           /* Padrão Geral */
+    -webkit-tap-highlight-color: transparent; /* Tira o piscar azul */
+    padding: 10px 0;             /* Aumenta a área do dedo */
+}
+
+.sap-path-link:hover {
+    color: #bb86fc;
+    text-decoration: underline;
+}
+
+.sap-separator { color: #666; font-size: 10px; }
+
+.sap-path-current { 
+    color: #bb86fc; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono', monospace; 
+}
+
 
 
 .erp-window {
