@@ -238,22 +238,27 @@ body {
 
 
 
-/* DATA GRID */
+/* --- SUBSTITUA AS CLASSES ORIGINAIS POR ESTAS --- */
 
-.data-grid-container { flex: 1; overflow: auto; background: var(--bg-window); position: relative; }
-
-
-
-.data-grid {
-
-    width: 100%; border-collapse: collapse;
-
-    table-layout: fixed; /* Fixa o layout base */
-
-    min-width: 900px; 
-
+.data-grid-container {
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    
+    /* AQUI ESTÁ A MÁGICA DA RESPONSIVIDADE: */
+    width: 100%;         /* Garante que o container ocupe a tela toda */
+    overflow-x: auto;    /* Cria barra de rolagem lateral se a tabela for grande demais */
 }
 
+.data-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    
+    /* REMOVI O 'min-width: 900px' QUE TRAVAVA TUDO */
+    /* Agora a tabela pode encolher livremente */
+}
 
 
 /* Cabeçalhos (Ainda podem ser redimensionados lateralmente) */
