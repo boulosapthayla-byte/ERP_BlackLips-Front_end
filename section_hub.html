@@ -13,7 +13,8 @@
 </head>
 <body>
 
-    <div style="display: flex; width: 100%; height: 100vh; flex-direction: column;">
+  <body>
+    <div id="hub-wrapper" style="display: flex; width: 100%; height: 100vh; flex-direction: column;">
 
         <div class="sap-top-container">
             <div class="sap-menu-bar">
@@ -56,7 +57,7 @@
                             </div>
                             
                             <div style="padding-left:15px">
-                                <div class="tree-item" onclick="openScreen('matriz', 'Z_PRICE_MATRIX')">
+                              <div class="tree-item" onclick="abrirApp('margin_analysis.html')">
                                     <i class="fa-solid fa-star" style="color:var(--accent-purple); font-size:10px;"></i> Matriz de Preço
                                 </div>
                             </div>
@@ -100,8 +101,10 @@
 
             </main>
 
-        </div>
-    </div>
+ </div>
+    </div> </div> <iframe id="fullscreen-app" style="display: none; border: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: #121212;"></iframe>
+
+    <script src="section_hub.js"></script>
 
 </body>
 </html>
