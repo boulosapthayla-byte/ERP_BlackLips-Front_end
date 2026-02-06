@@ -43,11 +43,34 @@
 
 
 body {
+    background-color: var(--bg-body); 
+    color: var(--text-main);
+    display: flex; 
+    /* 👇 ISSO É O QUE FALTA PARA NÃO FICAR DE LADO 👇 */
+    flex-direction: column; 
+    align-items: center;    
+    /* ----------------------------------------------- */
+    padding: 20px; 
+    min-height: 100vh;
+}
 
-    background-color: var(--bg-body); color: var(--text-main);
+/* --- ADICIONE ISTO LOGO NO INÍCIO DO CSS (DEPOIS DO BODY) --- */
 
-    display: flex; justify-content: center; padding: 20px; min-height: 100vh;
-
+.sap-breadcrumb {
+    background: #1e1e1e;
+    padding: 8px 15px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    
+    /* 👇 ADICIONE ISSO PARA ALINHAR COM A TABELA 👇 */
+    width: 100%;
+    max-width: 1200px; /* Mesma largura da erp-window */
+    margin-bottom: 0;  /* Cola na janela de baixo se quiser, ou ponha 10px para separar */
+    border: 1px solid #333; /* Opcional: para ficar igual à janela */
+    /* --------------------------------------------- */
 }
 
 
