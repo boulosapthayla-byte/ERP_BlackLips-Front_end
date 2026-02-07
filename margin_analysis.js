@@ -1,12 +1,12 @@
 /* ============================================================
-   BLACK LIPS ERP - ARQUIVO JS (VERSÃO FINAL LIMPA)
+   BLACK LIPS ERP - ARQUIVO JS LIMPO E CORRIGIDO
    ============================================================ */
 
 const API_URL = "https://erp-blacklips-api.onrender.com";
 const lista = document.getElementById('lista');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-/* --- 1. CARREGAMENTO INICIAL --- */
+// 1. CARREGAMENTO INICIAL
 window.onload = function() {
     if (loadingOverlay) loadingOverlay.style.display = 'flex';
     
@@ -26,7 +26,8 @@ window.onload = function() {
     buscarDaNuvem(); 
 };
 
-/* --- 2. REGISTRAR FUNÇÕES GLOBAIS (Para o HTML enxergar) --- */
+// 2. DISPONIBILIZAR FUNÇÕES PARA O HTML
+// (Isso é o que conserta o erro "not defined")
 window.novoItem = novoItem;
 window.apagar = apagar;
 window.salvar = salvar;
@@ -36,18 +37,13 @@ window.calcular = calcular;
 window.alternarMenu = alternarMenu;
 window.gerarPDF = gerarPDF;
 
-/* AQUI ESTÁ A FUNÇÃO DE VOLTAR (Agora vai funcionar!) */
-function voltarAoHub() {
-    window.location.href = "section_hub.html";
-}
-window.voltarAoHub = voltarAoHub;
-
-/* --- 3. LÓGICA DO SISTEMA --- */
-
+/* --- ALTERAÇÃO NA FUNÇÃO salvar --- */
 function salvar() {
+    // 1. Salva os inputs
     const inputs = lista.querySelectorAll('input');
     inputs.forEach(input => input.setAttribute('value', input.value));
     
+    // 2. Salva a altura da LINHA (buscando pela div row-resizer)
     const resizers = lista.querySelectorAll('.row-resizer');
     resizers.forEach(resizer => {
         if(resizer.style.height) {
@@ -180,18 +176,14 @@ function atualizarTotaisGerais() {
         totalLucro += ((vendaUn - custoUn) * qtd);
     });
     
-    const elCusto = document.getElementById('totalCusto');
-    const elVenda = document.getElementById('totalVenda');
+    document.getElementById('totalCusto').innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('totalVenda').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     const elLucro = document.getElementById('totalLucro');
-
-    if(elCusto) elCusto.innerText = "R$ " + totalCusto.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    if(elVenda) elVenda.innerText = "R$ " + totalVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    if(elLucro) {
-        elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
-    }
+    elLucro.innerText = "R$ " + totalLucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    elLucro.className = 'profit-cell ' + (totalLucro >= 0 ? 'positive' : 'negative');
 }
 
+/* --- ALTERAÇÃO NA FUNÇÃO novoItem --- */
 function novoItem(retornarElemento = false) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -203,15 +195,13 @@ function novoItem(retornarElemento = false) {
         <td class="margin-cell" style="text-align: right;">0,00%</td>
         <td style="text-align: center;">
             <div class="row-resizer">
-                <button class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></button>
+                <div class="trash-btn" onclick="apagar(this)"><i class="fa-solid fa-xmark"></i></div>
             </div>
         </td>
     `;
     lista.appendChild(tr);
-    if (!retornarElemento) {
-        tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        salvar();
-    }
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (!retornarElemento) salvar();
     return tr;
 }
 
@@ -223,12 +213,10 @@ function reativarEventos() {
     const linhas = lista.querySelectorAll('tr');
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
-        if(inputs.length >= 4) {
-            inputs[0].oninput = function() { salvar(); };
-            inputs[1].oninput = function() { calcular(this); };
-            inputs[2].oninput = function() { calcular(this); };
-            inputs[3].oninput = function() { calcular(this); };
-        }
+        inputs[0].oninput = function() { salvar(); };
+        inputs[1].oninput = function() { calcular(this); };
+        inputs[2].oninput = function() { calcular(this); };
+        inputs[3].oninput = function() { calcular(this); };
     });
 }
 
@@ -244,7 +232,12 @@ function limpar() {
     }
 }
 
+// ============================================================
+// LÓGICA DO MENU E PDF (Corrigida)
+// ============================================================
+
 function alternarMenu() {
+    console.log("Abrindo menu..."); // Debug
     const menu = document.getElementById("menuPDF");
     if (menu) menu.classList.toggle("mostrar");
 }
@@ -259,9 +252,11 @@ window.onclick = function(event) {
 }
 
 async function gerarPDF(tipo) {
+    // 1. Fecha Menu
     const menu = document.getElementById("menuPDF");
     if (menu) menu.classList.remove("mostrar");
 
+    // 2. Verifica Biblioteca
     if (!window.jspdf || !window.jspdf.jsPDF) {
         alert("Erro: A biblioteca jspdf não carregou corretamente.");
         return;
@@ -270,11 +265,13 @@ async function gerarPDF(tipo) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
+    // 3. Captura Dados
     const linhas = document.querySelectorAll('#lista tr');
     const dadosParaPDF = [];
 
     linhas.forEach(tr => {
         const inputs = tr.querySelectorAll('input');
+        // Proteção contra linha vazia ou inputs não carregados
         if (!inputs || inputs.length < 2) return;
 
         const produto = inputs[0].value ? inputs[0].value.toUpperCase() : "";
@@ -298,6 +295,7 @@ async function gerarPDF(tipo) {
         return;
     }
 
+    // 4. Configura Colunas
     let colunas = [];
     let tituloRelatorio = "";
 
@@ -320,6 +318,7 @@ async function gerarPDF(tipo) {
         ];
     }
 
+    // 5. Cabeçalho
     doc.setFontSize(16);
     doc.setTextColor(30, 30, 30);
     doc.text("BLACK LIPS ERP", 14, 20);
@@ -329,15 +328,35 @@ async function gerarPDF(tipo) {
     doc.text(tituloRelatorio, 14, 28);
     doc.text("Gerado em: " + new Date().toLocaleString(), 14, 33);
 
+    // 6. Tabela AutoTable
     if (doc.autoTable) {
         doc.autoTable({
             head: [colunas.map(c => c.header)],
             body: dadosParaPDF,
             startY: 40,
             theme: 'grid',
-            styles: { fontSize: 9, valign: 'middle', cellPadding: 3 },
+            pageBreak: 'auto',
+            rowPageBreak: 'avoid',
+            styles: { fontSize: 9, valign: 'middle', overflow: 'linebreak', cellPadding: 3, lineColor: [200, 200, 200] },
             headStyles: { fillColor: [45, 45, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
+            columnStyles: {
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 15, halign: 'center' },
+                2: { halign: tipo === 'completo' ? 'right' : 'left' },
+                3: { halign: 'right' },
+                4: { halign: 'right' },
+                5: { halign: 'right' }
+            },
+            didDrawPage: function (data) {
+                let str = 'Página ' + doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                let pageSize = doc.internal.pageSize;
+                let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                doc.text(str, data.settings.margin.left, pageHeight - 10);
+            }
         });
         doc.save(tipo === 'completo' ? "Financeiro_BlackLips.pdf" : "Lista_Separacao.pdf");
+    } else {
+        alert("Erro: O plugin AutoTable não foi carregado. Tente recarregar a página.");
     }
 }
