@@ -1,44 +1,54 @@
-function openScreen(screenId, title) {
-    // 1. Esconde todas as telas
-    document.querySelectorAll('.screen-content').forEach(el => el.classList.remove('active-screen'));
-    
-    // 2. Mostra a tela certa
-    const target = document.getElementById('screen-' + screenId);
-    if(target) target.classList.add('active-screen');
+/* ============================================================
+   LÓGICA DO HUB SAP (section_hub.js)
+   ============================================================ */
 
-    // 3. Atualiza o Título e o Input de Comando
-    if(title) {
-        document.getElementById('header-title').innerText = title;
-        document.getElementById('cmd-input').value = "/n " + title;
-    }
-}
-
-/* === LÓGICA DE ABRIR/FECHAR APP (SIMPLES) === */
-
-// Certifique-se que seu HTML tem uma div com id="hub-wrapper" envolvendo tudo
-// e um iframe com id="fullscreen-app"
-const hubWrapper = document.getElementById('hub-wrapper'); 
-const appFrame = document.getElementById('fullscreen-app'); 
-
-// Função para abrir o App (Isso esconde o Hub e mostra o iframe)
+/* 1. FUNÇÃO PARA ABRIR APPS (Como a Matriz de Preço) */
 function abrirApp(url) {
-    if(hubWrapper && appFrame) {
-        hubWrapper.style.display = 'none'; // Esconde o Hub
-        appFrame.style.display = 'block';  // Mostra o Iframe
-        appFrame.src = url;                // Carrega o site (ex: margin_analysis.html)
+    // Busca o elemento iframe que está escondido no HTML
+    const iframe = document.getElementById('fullscreen-app');
+    
+    if (iframe) {
+        // Se o iframe existir, carrega a URL nele
+        iframe.src = url;
+        // E mostra ele na tela toda
+        iframe.style.display = 'block';
     } else {
-        console.error("ERRO: Faltam as IDs 'hub-wrapper' ou 'fullscreen-app' no seu HTML!");
-        // Fallback: Se não achar as divs, abre normal
+        // Segurança: Se por algum motivo o iframe não existir, abre na mesma janela
         window.location.href = url;
     }
 }
 
-// Função que o App vai chamar para se fechar
-// (Essa função fica disponível para o iframe usar)
-window.fecharAppDoHub = function() {
-    if(hubWrapper && appFrame) {
-        appFrame.style.display = 'none';   // Esconde o Iframe
-        appFrame.src = '';                 // Limpa a memória
-        hubWrapper.style.display = 'flex'; // Traz o Hub de volta (use 'block' ou 'flex' conforme seu layout)
+/* 2. FUNÇÃO PARA FECHAR O APP (Botão Voltar) */
+function fecharApp() {
+    const iframe = document.getElementById('fullscreen-app');
+    if (iframe) {
+        iframe.style.display = 'none';
+        iframe.src = ''; // Limpa a memória
     }
 }
+
+/* 3. FUNÇÃO PARA NAVEGAR NOS MENUS LATERAIS (Favoritos, Custos, etc) */
+function openScreen(screenId, title) {
+    // Esconde todas as telas de conteúdo
+    const screens = document.querySelectorAll('.screen-content');
+    screens.forEach(el => el.style.display = 'none');
+    
+    // Mostra apenas a tela que foi clicada (ex: screen-home ou screen-custos)
+    const target = document.getElementById('screen-' + screenId);
+    if (target) {
+        target.style.display = 'block';
+        
+        // Adiciona a classe para centralizar se for a Home
+        if (screenId === 'home') target.classList.add('center-content');
+        else target.classList.remove('center-content');
+    }
+    
+    // Atualiza o Título lá no topo (Cabeçalho cinza)
+    const titleEl = document.getElementById('header-title');
+    if (titleEl) titleEl.innerText = title;
+}
+
+/* 4. DISPONIBILIZAR AS FUNÇÕES PARA O HTML (Importante!) */
+window.abrirApp = abrirApp;
+window.fecharApp = fecharApp;
+window.openScreen = openScreen;
