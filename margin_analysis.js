@@ -36,11 +36,21 @@ window.calcular = calcular;
 window.alternarMenu = alternarMenu;
 window.gerarPDF = gerarPDF;
 
-/* AQUI ESTÁ A CORREÇÃO: A FUNÇÃO VOLTAR */
+/* ============================================================
+   FUNÇÃO VOLTAR INTELIGENTE (Substitua a antiga por esta)
+   ============================================================ */
 function voltarAoHub() {
-    window.location.href = "section_hub.html";
+    // Verifica se o site está rodando dentro do Hub (Janela Iframe)
+    if (window.parent && window.parent.fecharApp) {
+        // Se sim, pede para o Hub FECHAR a janela (em vez de navegar)
+        window.parent.fecharApp();
+    } else {
+        // Se não (o usuário abriu o link direto), aí sim navega para o Hub
+        window.location.href = "section_hub.html";
+    }
 }
-window.voltarAoHub = voltarAoHub; // Garante que o HTML enxergue a função
+window.voltarAoHub = voltarAoHub;
+
 
 /* --- FUNÇÕES DO SISTEMA --- */
 
