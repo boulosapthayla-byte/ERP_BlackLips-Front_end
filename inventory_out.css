@@ -1,1 +1,74 @@
+/* Configuração Base (Para o fundo #333) */
+body {
+    background-color: #333;
+    margin: 0;
+    font-family: Arial, sans-serif; /* Fonte padrão segura */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
 
+/* Variável necessária para o seu código funcionar */
+:root {
+    --bg-window: #1e1e1e;
+}
+
+/* ============================================================ */
+/* SEU CÓDIGO ORIGINAL (NÃO ALTERADO)                 */
+/* ============================================================ */
+
+.sap-breadcrumb {
+    background: #1e1e1e;
+    padding: 8px 15px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    
+    /* 👇 ADICIONE ISSO PARA ALINHAR COM A TABELA 👇 */
+    width: 100%;
+    max-width: 1200px; /* Mesma largura da erp-window */
+    margin-bottom: 0;  /* Cola na janela de baixo se quiser, ou ponha 10px para separar */
+    border: 1px solid #333; /* Opcional: para ficar igual à janela */
+    /* --------------------------------------------- */
+}
+
+/* --- COLE ISTO LOGO ABAIXO DE .sap-breadcrumb { ... } --- */
+
+/* O LINK DE VOLTAR (Correção Crítica para Tablet) */
+.sap-path-link {
+    color: #b0b0b0;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s;
+    
+    /* 👇 A MÁGICA ANTI-SELEÇÃO DO TABLET 👇 */
+    -webkit-user-select: none;   /* Chrome/Safari Mobile */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    user-select: none;           /* Padrão Geral */
+    -webkit-tap-highlight-color: transparent; /* Tira o piscar azul */
+    padding: 10px 0;             /* Aumenta a área do dedo */
+}
+
+.sap-path-link:hover {
+    color: #bb86fc;
+    text-decoration: underline;
+}
+
+.sap-separator { color: #666; font-size: 10px; }
+
+.sap-path-current { 
+    color: #bb86fc; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono', monospace; 
+}
+
+.erp-window {
+    width: 100%; max-width: 1200px; background: var(--bg-window);
+    border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column; height: 90vh;
+}
