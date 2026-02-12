@@ -12,19 +12,257 @@
 <script src="inventory_out.js" defer></script>
 </head>
 <body>
-
     <div class="sap-breadcrumb">
         <span class="sap-path-link" onclick="voltarAoHub()" title="Voltar para o Menu">
             SAP Easy Access
         </span>
-        
         <i class="fa-solid fa-angle-right sap-separator"></i>
-        
         <span class="sap-path-current">Z_INVENTORY_OUT</span>
     </div>
 
     <div class="erp-window">
+        <div class="sap-crystal-window">
+            <div class="migo-standard-toolbar">
+        <div class="combo-check">
+            <i class="fa-solid fa-circle-check" style="color:#00e676; margin-right:auto;"></i>
+            <i class="fa-solid fa-caret-down seta-combo"></i>        
+        </div>
+        <div class="sep-vertical"></div>
+        <button title="Importar"><i class="fa-regular fa-floppy-disk"></i></button>
+        <button title="imprimir"><i class="fa-solid fa-print"></i></button>         
+        <div class="sep-vertical"></div>
+        <button><i class="fa-solid fa-circle-question" style="color:#29b6f6"></i></button>
+        <div style="display: flex; align-items: center; gap: 15px; margin-left: 10px; padding-left: 10px; border-left: 1px solid #555; height: 16px;">
+            <span style="cursor:pointer; font-size: 11px; color: #bbb;">Configurações</span>
+            <span style="cursor:pointer; font-size: 11px; color: #bbb;">Sistema</span>
+            <span style="cursor:pointer; font-size: 11px; color: #bbb;">Ajuda</span>
+        </div>
+        <button style="margin-left:auto"><i class="fa-regular fa-window-restore"></i></button>
+    </div>
+
+    <div class="migo-application-title">
+        <span>Saída de Mercadorias Pedido</span>
+    </div>
+
+    <div class="migo-transaction-toolbar">
+        <button class="txt-btn" onclick="const s = document.getElementById('sidebarDocumentos'); s.style.display = (s.style.display === 'none') ? 'flex' : 'none';">
+            Síntese on/off
+        </button>
+        <div class="sep-vertical"></div>
+        <button class="txt-btn"><i class="fa-regular fa-file"></i></button>
+        <div class="sep-vertical"></div>
+        <button class="txt-btn">Memorizar</button>
+        <button class="txt-btn" style="color:#aaa">Verificar</button>
+        <button class="txt-btn" style="color:#aaa">Registrar</button>
+        <div class="sep-vertical"></div>
+        <button class="txt-btn"><i class="fa-solid fa-circle-info" style="color:#29b6f6; margin-right:4px"></i> Ajuda</button>
+    </div>
+
+    <div class="migo-body-split">
+
+        <div class="migo-sidebar" id="sidebarDocumentos">
+            <div class="sidebar-tools-row">
+                <button class="tiny-btn"><i class="fa-solid fa-angles-down" style="color:#bb86fc"></i></button>
+                <button class="tiny-btn"><i class="fa-solid fa-angles-up" style="color:#bb86fc"></i></button>
+                <button class="tiny-btn"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="tiny-btn close-icon" onclick="document.getElementById('sidebarDocumentos').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-header" id="header-meus-documentos">Meus documentos</div>
+            
+            <div class="sidebar-tree-content" id="main-tree-container">
+                <div class="tree-group group-pedidos">
+                    <div class="tree-root" id="topic-pedidos"><i class="fa-solid fa-caret-right"></i> Pedidos</div>
+                    <div class="tree-branch" style="display:none">
+                        <div class="tree-item">
+                            <input type="checkbox" class="tree-checkbox"> Finalizados (<span id="num-pedidos-finalizados">12</span>)
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-group group-expedicao">
+                    <div class="tree-root" id="topic-expedicao"><i class="fa-solid fa-caret-right"></i> Expedição</div>
+                    <div class="tree-branch" style="display:none">
+                        <div class="tree-item">
+                            <input type="checkbox" class="tree-checkbox"> Despachados (<span id="num-expedicao-despachados">8</span>)
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-group group-finalizacao">
+                    <div class="tree-root" id="topic-finalizacao"><i class="fa-solid fa-caret-right"></i> Finalização</div>
+                    <div class="tree-branch" style="display:none">
+                        <div class="tree-item">
+                            <input type="checkbox" class="tree-checkbox"> Arq. Conciliados (<span id="num-arquivos-conciliados">25</span>)
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-group group-ordens">
+                    <div class="tree-root" id="topic-ordens"><i class="fa-solid fa-caret-down"></i> Ordens</div>
+                    <div class="tree-branch" style="display:block">
+                        <div class="tree-item active">
+                            <input type="checkbox" class="tree-checkbox" checked> Finalizar pedidos (<span id="num-ordens-abertas">3</span>)
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <div class="migo-right-panel">
+            
+            <div class="command-line-row">
+                <div class="sap-select-wrapper w-large">
+                    <select class="sap-select"><option>Entrada de mercadori...</option></select>
+                    <i class="fa-solid fa-caret-down"></i>
+                </div>
+                <div class="sap-select-wrapper w-medium">
+                    <select class="sap-select"><option>Pedido</option></select>
+                    <i class="fa-solid fa-caret-down"></i>
+                </div>
+                <div class="input-group-required">
+                    <input type="text" class="sap-input-yellow">
+                    <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+                <input type="text" class="sap-input w-mini" style="margin-left:4px">
+                <div class="action-buttons-group">
+                    <button class="action-btn"><i class="fa-solid fa-clock" style="color:#00e676"></i></button>
+                    <button class="action-btn"><i class="fa-solid fa-binoculars" style="color:#29b6f6"></i></button>
+                    <button class="action-btn"><i class="fa-solid fa-table-list"></i></button>
+                </div>
+            </div>
+
+            <div class="main-content-area">
+                
+                <div class="sap-tabs-container">
+                    <div class="sap-tab active">Geral</div>
+                    <div class="sap-tab">Fornecedor</div>
+                    <div class="sap-tab"><i class="fa-solid fa-people-group"></i></div>
+                </div>
+
+                <div class="header-data-panel">
+                    <div style="display: flex; gap: 30px; width: 100%;">
+                        
+                        <div class="form-column">
+                            <div class="form-row">
+                                <label>Data lançamento</label>
+                                <input type="date" class="sap-input" value="2026-02-10">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Material</label>
+                                <div style="display: flex; gap: 4px; width: 100%;">
+                                    <input type="text" class="sap-input" placeholder="Cód. ou Nome" style="width: 140px;">
+                                    <button class="action-btn" style="width:26px; height:22px; cursor: pointer; border: 1px solid #444; background: #25262e; color: #bb86fc;">
+                                        <i class="fa-solid fa-magnifying-glass" style="font-size: 10px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <label>Quantidade</label>
+                                <input type="number" class="sap-input" value="1" style="width: 80px; border-left: 3px solid #bb86fc;">
+                                <span style="font-size: 10px; color: #888; margin-left: 5px;">UN</span>
+                            </div>
+
+                            <div class="form-row">
+                                <label>Vlr. Total Venda</label>
+                                <input type="text" class="sap-input" value="R$ 0,00" id="vlr-venda">
+                            </div>
+                        </div>
+
+                        <div class="form-column" style="border-left: 1px solid #333; padding-left: 20px;">
+                            <div class="form-row">
+                                <label>Centro de Custo</label>
+                                <input type="text" class="sap-input" placeholder="Ex: ADM-001" style="width: 120px;">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Nota de remessa</label>
+                                <input type="text" class="sap-input" style="width: 120px;">
+                            </div>
+
+                            <div class="form-row" style="margin-top: 10px;">
+                                <label></label> 
+                                <div style="display: flex; align-items: center;">
+                                    <input type="checkbox" id="chk-individual" style="accent-color: #bb86fc; cursor: pointer;"> 
+                                    <span style="font-size:10px; color:#aaa; margin-left: 6px; cursor: pointer;" onclick="document.getElementById('chk-individual').click()">
+                                        Nota individual
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-toolbar" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 5px;">
+                        <input type="checkbox" title="Selecionar Todos" style="accent-color: #bb86fc; cursor: pointer; margin-right: 8px;">
+                        <button title="Inserir Linha" style="background: transparent; border: none; cursor: pointer;">
+                            <i class="fa-solid fa-plus" style="color: #bb86fc; font-size: 14px;"></i>
+                        </button>
+                    </div>
+
+                </div> <div class="grid-section">
+                    <div class="grid-scroll-container">
+                        <table class="sap-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">Linha</th>
+                                    <th style="width:180px">Txt.brv.material</th>
+                                    <th style="width:30px; text-align:center">OK</th>
+                                    <th style="width:80px">Qtd.em UMR</th>
+                                    <th style="width:40px">UM</th>
+                                    <th style="width:60px">Depósito</th>
+                                    <th style="width:80px">Lote</th>
+                                    <th style="width:100px">Tipo avaliação</th>
+                                    <th style="width:40px">Cen.</th>
+                                    <th style="width:20px"><i class="fa-solid fa-table-columns"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td><input type="text" value=""></td>
+                                    <td class="text-center"><input type="checkbox"></td>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">2</td>
+                                    <td><input type="text" value=""></td>
+                                    <td class="text-center"><input type="checkbox"></td>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">3</td>
+                                    <td><input type="text" value=""></td>
+                                    <td class="text-center"><input type="checkbox"></td>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">4</td>
+                                    <td><input type="text" value=""></td>
+                                    <td class="text-center"><input type="checkbox"></td>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid-footer">
+                        <button><i class="fa-solid fa-angles-left"></i></button>
+                        <input type="text" class="sap-input" style="width:100px; background:#25262e; border:none;">
+                        <button><i class="fa-solid fa-angles-right"></i></button>
+                        <button style="margin-left:10px"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
+                        <button><i class="fa-regular fa-file"></i> Conteúdo</button>
+                    </div>
+                </div> <div class="sap-tabs-bar" style="border-top: 4px solid #15161a; margin-top:auto;">
+                     <div class="sap-tab active">Material</div>
+                     <div class="sap-tab">Quantidade</div>
+                     <div class="sap-tab">Od</div>
+                </div>
+                <div style="height:20px; background:#15161a; border-top:2px solid #ff4081;"></div>
+          </div> </div> </div> </div> </div> <script>
+    function voltarAoHub() {
+        window.location.href = 'SUA_URL_AQUI';
+    }
+</script>
 </body>
 </html>
