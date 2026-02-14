@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
+<html lang="pt-br"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Black Lips ERP - Dark enterprise</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="inventory_out.css">
-    <script src="inventory_out.js" defer></script>
+    <script src="inventory_out.js" defer=""></script>
 
 </head>
 <body>
@@ -48,16 +47,9 @@
         </button>
         <div class="sep-vertical"></div>
         <button class="txt-btn"><i class="fa-regular fa-file"></i></button>
-        <div class="sep-vertical"></div>
-        <button class="txt-btn">Memorizar</button>
-        <button class="txt-btn" style="color:#aaa">Verificar</button>
-        <button class="txt-btn" style="color:#aaa">Registrar</button>
-        <div class="sep-vertical"></div>
-        <button class="txt-btn"><i class="fa-solid fa-circle-info" style="color:#29b6f6; margin-right:4px"></i> Ajuda</button>
-    </div>
+        </div> 
 
     <div class="migo-body-split">
-
         <div class="migo-sidebar" id="sidebarDocumentos">
             <div class="sidebar-tools-row">
                 <button class="tiny-btn"><i class="fa-solid fa-angles-down" style="color:#bb86fc"></i></button>
@@ -67,7 +59,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            
+           
             <div class="sidebar-header" id="header-meus-documentos">Meus documentos</div>
             
             <div class="sidebar-tree-content" id="main-tree-container">
@@ -99,7 +91,7 @@
                     <div class="tree-root" id="topic-ordens"><i class="fa-solid fa-caret-down"></i> Ordens</div>
                     <div class="tree-branch" style="display:block">
                         <div class="tree-item active">
-                            <input type="checkbox" class="tree-checkbox" checked> Finalizar pedidos (<span id="num-ordens-abertas">3</span>)
+                            <input type="checkbox" class="tree-checkbox" checked=""> Finalizar pedidos (<span id="num-ordens-abertas">3</span>)
                         </div>
                     </div>
                 </div>
@@ -137,68 +129,68 @@
                     <div class="sap-tab"><i class="fa-solid fa-people-group"></i></div>
                 </div>
 
-                <div class="header-data-panel">
-                    <div style="display: flex; gap: 30px; width: 100%;">
-                        
-                        <div class="form-column">
-                            <div class="form-row">
-                                <label>Data lançamento</label>
-                                <input type="date" class="sap-input" value="2026-02-10">
-                            </div>
+               <div class="header-data-panel">
+    <div style="display: flex; gap: 30px; width: 100%;">
+        
+        <div class="form-column">
+            <div class="form-row">
+                <label>Data lançamento</label>
+                <input type="date" class="sap-input" value="2026-02-10" style="width: 103px;">
+            </div>
 
-                            <div class="form-row">
-                                <label>Material</label>
-                                <div style="display: flex; gap: 4px; width: 100%;">
-                                    <input type="text" class="sap-input" placeholder="Cód. ou Nome" style="width: 140px;">
-                                    <button class="action-btn" style="width:26px; height:22px; cursor: pointer; border: 1px solid #444; background: #25262e; color: #bb86fc;">
-                                        <i class="fa-solid fa-magnifying-glass" style="font-size: 10px;"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <label>Quantidade</label>
-                                <input type="number" class="sap-input" value="1" style="width: 80px; border-left: 3px solid #bb86fc;">
-                                <span style="font-size: 10px; color: #888; margin-left: 5px;">UN</span>
-                            </div>
+            <div class="form-row">
+                <label>Material</label>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <input type="text" class="sap-input" placeholder="Cód. ou Nome" style="width: 83px;">
+                    <button class="action-btn" style="width:26px; height:22px; cursor: pointer; border: 1px solid #444; background: #25262e; color: #bb86fc;">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 10px;"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label>Quantidade</label>
+                <input type="number" class="sap-input" value="1" style="width: 38px; border-left: 3px solid #bb86fc;">
+                <span style="font-size: 10px; color: #888; margin-left: 5px;">UN</span>
+            </div>
 
-                            <div class="form-row">
-                                <label>Vlr. Total Venda</label>
-                                <input type="text" class="sap-input" value="R$ 0,00" id="vlr-venda">
-                            </div>
-                        </div>
+            <div class="form-row">
+                <label>Vlr. Total Venda</label>
+                <input type="text" class="sap-input" value="R$ 0,00" id="vlr-venda" style="width: 70px;">
+            </div>
+        </div>
 
-                        <div class="form-column" style="border-left: 1px solid #333; padding-left: 20px;">
-                            <div class="form-row">
-                                <label>Centro de Custo</label>
-                                <input type="text" class="sap-input" placeholder="Ex: ADM-001" style="width: 120px;">
-                            </div>
+        <div class="form-column" style="border-left: 1px solid #333; padding-left: 12px;">
+            <div class="form-row">
+                <label>Centro de Custo</label>
+                <input type="text" class="sap-input" placeholder="Ex: ADM-001" style="width: 80px;">
+            </div>
 
-                            <div class="form-row">
-                                <label>Nota de remessa</label>
-                                <input type="text" class="sap-input" style="width: 120px;">
-                            </div>
+            <div class="form-row" style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center;">
+                    <input type="checkbox" id="chk-individual" style="accent-color: #bb86fc; cursor: pointer;"> 
+                    <span style="font-size:10px; color:#aaa; margin-left: 0px; cursor: pointer;" onclick="document.getElementById('chk-individual').click()">
+                        Nota individual
+                    </span>
+                </div>
+                <div class="sep-vertical"></div>
+                <button class="txt-btn">Memorizar</button>
+                <button class="txt-btn" style="color:#aaa">Verificar</button>
+                <button class="txt-btn" style="color:#aaa">Registrar</button>
+                <div class="sep-vertical"></div>
+                <button class="txt-btn">
+                    <i class="fa-solid fa-circle-info" style="color:#29b6f6; margin-right:4px"></i> Ajuda
+                </button>
+            </div> 
+        </div> </div> </div> <div class="grid-toolbar" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 5px;">
+    <input type="checkbox" title="Selecionar Todos" style="accent-color: #bb86fc; cursor: pointer; margin-right: 8px;">
+    <button title="Inserir Linha" style="background: transparent; border: none; cursor: pointer;">
+        <i class="fa-solid fa-plus" style="color: #bb86fc; font-size: 14px;"></i>
+    </button>
+</div>
 
-                            <div class="form-row" style="margin-top: 10px;">
-                                <label></label> 
-                                <div style="display: flex; align-items: center;">
-                                    <input type="checkbox" id="chk-individual" style="accent-color: #bb86fc; cursor: pointer;"> 
-                                    <span style="font-size:10px; color:#aaa; margin-left: 6px; cursor: pointer;" onclick="document.getElementById('chk-individual').click()">
-                                        Nota individual
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="grid-section">  
 
-                    <div class="grid-toolbar" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 5px;">
-                        <input type="checkbox" title="Selecionar Todos" style="accent-color: #bb86fc; cursor: pointer; margin-right: 8px;">
-                        <button title="Inserir Linha" style="background: transparent; border: none; cursor: pointer;">
-                            <i class="fa-solid fa-plus" style="color: #bb86fc; font-size: 14px;"></i>
-                        </button>
-                    </div>
-
-                </div> <div class="grid-section">
                     <div class="grid-scroll-container">
                         <table class="sap-table">
                             <thead>
@@ -263,5 +255,6 @@
     window.location.href = 'section_hub.html';
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
