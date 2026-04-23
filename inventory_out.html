@@ -50,7 +50,7 @@
         </div> 
 
     <div class="migo-body-split">
-        <div class="migo-sidebar" id="sidebarDocumentos">
+        <div class="migo-sidebar" id="sidebarDocumentos" style="display: none;">
             <div class="sidebar-tools-row">
                 <button class="tiny-btn"><i class="fa-solid fa-angles-down" style="color:#bb86fc"></i></button>
                 <button class="tiny-btn"><i class="fa-solid fa-angles-up" style="color:#bb86fc"></i></button>
@@ -166,28 +166,32 @@
                 <input type="text" class="sap-input" placeholder="Ex: ADM-001" style="width: 80px;">
             </div>
 
-            <div class="form-row" style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-                <div style="display: flex; align-items: center;">
-                    <input type="checkbox" id="chk-individual" style="accent-color: #bb86fc; cursor: pointer;"> 
-                    <span style="font-size:10px; color:#aaa; margin-left: 0px; cursor: pointer;" onclick="document.getElementById('chk-individual').click()">
-                        Nota individual
-                    </span>
-                </div>
-                <div class="sep-vertical"></div>
-                <button class="txt-btn">Memorizar</button>
-                <button class="txt-btn" style="color:#aaa">Verificar</button>
-                <button class="txt-btn" style="color:#aaa">Registrar</button>
-                <div class="sep-vertical"></div>
-                <button class="txt-btn">
-                    <i class="fa-solid fa-circle-info" style="color:#29b6f6; margin-right:4px"></i> Ajuda
-                </button>
-            </div> 
-        </div> </div> </div> <div class="grid-toolbar" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 5px;">
-    <input type="checkbox" title="Selecionar Todos" style="accent-color: #bb86fc; cursor: pointer; margin-right: 8px;">
-    <button title="Inserir Linha" style="background: transparent; border: none; cursor: pointer;">
-        <i class="fa-solid fa-plus" style="color: #bb86fc; font-size: 14px;"></i>
+            <div class="form-row form-actions">
+    <div class="checkbox-group">
+        <input type="checkbox" id="chk-individual">
+        <label for="chk-individual">Nota individual</label>
+    </div></div> 
+        </div> </div> </div> <div class="grid-toolbar">
+    <input type="checkbox" title="Selecionar Todos">
+    
+    <button title="Inserir Linha">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <div class="sep-vertical"></div>
+
+    <button class="txt-btn">Memorizar</button>
+    <button class="txt-btn disabled">Verificar</button>
+    <button class="txt-btn disabled">Registrar</button>
+
+    <div class="sep-vertical"></div>
+
+    <button class="txt-btn">
+        <i class="fa-solid fa-circle-info info-icon"></i> Ajuda
     </button>
 </div>
+
+
 
 <div class="grid-section">  
 
@@ -255,6 +259,7 @@
     window.location.href = 'section_hub.html';
 }
 </script>
+
 
 
 </body></html>
