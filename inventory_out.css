@@ -402,7 +402,7 @@ body, html {
 
     gap: 0;              /* O espaço agora será controlado pelo padding/margin interno */
 
-    padding: 15px;
+    padding: 12px;
 
     box-sizing: border-box;
 
@@ -437,48 +437,61 @@ body, html {
 
     display: flex;
 
-    align-items: flex; /* Mantém texto e caixa centralizados verticalmente */
+    align-items: center; /* Mantém texto e caixa centralizados verticalmente */
 
     gap: 1px;           /* Espaço entre o final do texto e o início da caixa */
 
 }
 
-.form-row label {
-
-    width: 90px;        /* Largura fixa do texto para alinhar as caixas na vertical */
-  
-    min-width: 50px;
-
+/* Coluna da Esquerda (Geralmente campos mais longos) */
+.form-column:first-child .form-row label {
+    width: 90px; 
+    min-width: 90px;
 }
 
-/* 3. AS CAIXAS (Controle de tamanho manual liberado) */
+/* Coluna da Direita (Campos como Centro de Custo) */
+.form-column:last-child .form-row label {
+    width: 90px;
+    min-width: 90px;
+   
+}
 
-.form-row input, 
-
+/* 3. AS CAIXAS (Apenas inputs de texto e selects) */
+.form-row input:not([type="checkbox"]), 
 .form-row select {
-
-    flex: 0 1 auto;      /* Destrava o crescimento automático */
-
-    width: 200px;        /* Tamanho padrão se você não colocar style no HTML */
-
+    flex: 0 1 auto;
+    width: 200px; /* Tamanho padrão das caixas de texto */
     max-width: 100%;
-
-    min-width: 0;
-
-    
-
-    /* Estética SAP */
-
+    min-width: flex;
     height: 20px;
-
     background-color: #101010;
-
     border: 1px solid #6a6a6a;
-
     color: #fff;
-
     padding: 0 4px;
+}
 
+/* Ajuste específico para o grupo Nota Individual */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre o quadrado e o texto */
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+    margin: 0;
+    accent-color: #bb86fc;
+    cursor: pointer;
+    flex: none;
+}
+
+.checkbox-group label {
+    width: auto !important;   /* Mata os 90px da coluna só aqui */
+    min-width: 0 !important;
+    font-size: 11px;
+    color: #aaa;
+    cursor: pointer;
 }
 
 .link-label { color: #5899da !important; text-decoration: underline; cursor: pointer; }
@@ -488,107 +501,58 @@ body, html {
 
 
 /* ==========================================================================
-
-   GRID INTELIGENTE (SCROLL + RODAPÉ FIXO NA BASE)
-
-   Substitua o trecho da Grid por este
-
+   ESTRUTURA FINAL DA GRID E TABELA - ERP BLACK LIPS
    ========================================================================== */
 
-
-
-/* 1. Seção Principal da Grid (Ocupa todo o espaço restante) */
-
+/* 1. Container Principal da Grid */
 .grid-section {
-
-    flex: 1;               /* Faz a tabela ocupar o espaço que sobrar */
-
-    display: flex; 
-
+    flex: 1;
+    display: flex;
     flex-direction: column;
-
-    background: #15161a; 
-
-    padding: 5px 5px 0 5px; 
-
-    overflow: hidden;      /* Mantém tudo dentro dos limites da tela */
-
-    min-height: 0; 
-
+    background: #15161a;
+    padding: 0px;
+    overflow: hidden; /* Garante que nada vaze da tela */
+    min-height: 0;
 }
 
-
-
-/* 2. Barra de Ferramentas (Botões em cima da tabela) */
-
-.grid-toolbar { 
-
-    display: flex; align-items: center; gap: 4px; margin-bottom: 4px; flex-shrink: 0;
-
+/* 2. Barra de Ferramentas (Botões alinhados em linha) */
+.grid-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    padding: 1px;
+    border-top: 1px solid #333;
+    flex-shrink: 0; /* Impede a barra de sumir */
 }
 
-.grid-toolbar button { 
-
-    background: transparent; border: 1px solid transparent; 
-
-    cursor: pointer; color: #e3e3e3; padding: 2px 6px; 
-
-    font-size: 11px; display: flex; align-items: center; gap: 4px; 
-
-    border-radius: 2px; 
-
+/* Checkbox 'Selecionar Todos' */
+.grid-toolbar input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #bb86fc;
+    margin: 6px;
 }
 
-
-
-/* SUBSTITUA O BLOCO DA LINHA 157 POR ESTE: */
-
-.grid-toolbar {  
-
-    display: flex; 
-
-    align-items: center; 
-
-    gap: 8px; 
-
-    margin-bottom: 0; /* Remove margem para não empurrar a tabela */
-
-    flex-shrink: 0;
-
-    background: transparent; /* Garante que fique no cinza claro */
-
+/* Botões da Toolbar */
+.grid-toolbar button, .grid-toolbar .txt-btn {
+    background: transparent;
+    border: none;
+    color: #bb86fc;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
 }
 
-
-
-/* 3. O Container de Rolagem (AQUI ESTÁ A CORREÇÃO) */
-
+/* 3. Container de Rolagem da Tabela */
 .grid-scroll-container {
-
-    flex: 1; /* Cresce para ocupar todo o espaço vazio até o rodapé */
-
-    overflow: auto; /* Gera as barras de rolagem automaticamente */
-
-    
-
-    background: #15161a; /* Mesma cor das linhas para não ter "buraco preto" */
-
-    
-
-    border: 1px solid #444; 
-
-    border-bottom: none; /* Remove a borda de baixo para colar no rodapé */
-
-    position: relative;
-
-    
-
-    /* Garante que o scroll apareça */
-
-    min-height: 0; 
-
-    width: 100%;
-
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #444;
+    background: #15161a;
+    min-height: 0;
 }
 
 
