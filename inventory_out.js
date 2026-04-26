@@ -1,66 +1,52 @@
 /**
  * BLACK LIPS ERP - Core Script
- * Sincronizado com inventory_out.html e section_hub.html
+ * Sincronizado com section_hub.html
  */
 
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("ERP Black Lips: Módulo de Inventário Conectado.");
-
-    // 1. VINCULAR O BREADCRUMB À NAVEGAÇÃO
-    // Faz com que o link "SAP Easy Access" no topo leve de volta ao Hub
-    const breadcrumbLink = document.querySelector('.sap-path-link');
-    if (breadcrumbLink) {
-        breadcrumbLink.style.cursor = "pointer";
-        breadcrumbLink.addEventListener('click', voltarAoHub);
-    }
-});
-
-/* --- 2. FUNÇÃO DE NAVEGAÇÃO (VOLTAR AO HUB) --- */
+// 1. FUNÇÃO DE NAVEGAÇÃO
+// Garante que o clique no Breadcrumb volte para a tela principal
 function voltarAoHub() {
-    console.log("Navegando para o Hub...");
+    console.log("Tentando voltar para section_hub.html...");
     window.location.href = "section_hub.html";
 }
 
-/* --- 3. LÓGICA DO PAINEL RETRÁTIL (ACCORDION) --- */
-// Esta função é chamada pelo 'onclick' que está na div 'tree-root' do seu HTML
+// 2. LÓGICA DO PAINEL RETRÁTIL (ACCORDION)
+// Conversa com as classes .oculto e .girar do seu CSS
 function togglePainel() {
     const painel = document.getElementById('conteudo-painel');
     const seta = document.getElementById('seta-painel');
-
+    
     if (painel && seta) {
-        // Alterna a classe 'oculto' (controla altura e opacidade no seu CSS)
+        // Alterna a visibilidade suave (max-height e opacity no CSS)
         painel.classList.toggle('oculto');
         
-        // Alterna a classe 'girar' (controla a rotação da seta no seu CSS)
+        // Alterna a rotação da seta (transform no CSS)
         seta.classList.toggle('girar');
     }
 }
 
-/* --- 4. FUNÇÕES DOS BOTÕES DE IMPORTAÇÃO --- */
-// Chamadas pelos 'onclick' dos botões Rosa e Roxo
+// 3. FUNÇÕES DOS BOTÕES DE IMPORTAÇÃO
 function importarEstoque() {
-    console.log("Ação: Importar Pedido disparada.");
-    alert("🔍 Black Lips ERP: Buscando pedidos pendentes no estoque...");
+    console.log("Importar Pedido clicado.");
+    alert("🔍 Black Lips ERP: Buscando pedidos pendentes...");
 }
 
 function importarOrdens() {
-    console.log("Ação: Importar Ordens disparada.");
-    alert("📦 Black Lips ERP: Sincronizando Ordens de Serviço...");
+    console.log("Importar Ordens clicado.");
+    alert("📦 Black Lips ERP: Sincronizando ordens de produção...");
 }
 
-/* --- 5. ATALHOS DE TECLADO (ESTILO SAP) --- */
+// 4. ATALHOS E EVENTOS ADICIONAIS
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Módulo MIGO carregado com sucesso.");
+});
+
+// Atalho ESC para fechar o painel se estiver aberto
 document.addEventListener('keydown', (e) => {
-    // Atalho: Tecla ESC fecha o painel se ele estiver aberto
     if (e.key === 'Escape') {
         const painel = document.getElementById('conteudo-painel');
         if (painel && !painel.classList.contains('oculto')) {
             togglePainel();
         }
-    }
-    
-    // Atalho: F8 (Executar no SAP) pode ser usado para gravar ou voltar
-    if (e.key === 'F8') {
-        e.preventDefault();
-        console.log("Atalho F8 pressionado.");
     }
 });
