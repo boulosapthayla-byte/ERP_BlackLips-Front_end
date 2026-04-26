@@ -1,694 +1,95 @@
-/* ==========================================================================
-
-   BLACK LIPS ERP - MIGO DARK ENTERPRISE (FULL CODE)
-
-   ========================================================================== */
-
-
-
-/* RESET GLOBAL */
-
 * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
 
-
-
-/* Localize e altere estas linhas */
-
 body, html {
-
-    width: 100%; 
-
-    height: 100vh;
-
+    width: 100%; height: 100vh;
     background-color: #0b0c10;
-
     color: #e3e3e3;
-
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-
+    font-family: 'Segoe UI', sans-serif;
     font-size: 11px;
-
-    
-
-    /* ALTERAÇÃO AQUI: De hidden para auto */
-
-    overflow-y: auto; 
-
-    
-
-    display: flex; 
-
-    flex-direction: column;
-
-}
-
-/* --- ESTILO DA BREADCRUMB (LINHA DO TOPO) --- */
-.sap-breadcrumb {
-    background: #0b0c10;            /* Fundo escuro total */
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #222;
-    height: 28px;                   /* Altura padrão SAP Portal */
-}
-
-.sap-path-link {
-    color: #5899da;                 /* Azul de link clássico */
-    cursor: pointer;
-    font-size: 11px;
-}
-
-.sap-path-link:hover {
-    color: #ff4081;                 /* Rosa Black Lips no hover */
-    text-decoration: underline;
-}
-
-.sap-separator {
-    color: #555;
-    font-size: 10px;
-}
-
-.sap-path-current {
-    color: #fff;
-    font-weight: bold;
-    font-size: 11px;
-}
-
-/* O PASSO 1 QUE VOCÊ JÁ COLOU VEM LOGO ABAIXO DISSO... */
-
-/* JANELA PRINCIPAL */
-
-.sap-crystal-window {
-
-    width: 100%; flex: 1;
-
-    background: #15161a;
-
+    overflow: hidden;
     display: flex; flex-direction: column;
-
 }
 
-
-.migo-standard-toolbar { 
-    height: 34px; /* <--- SÓ MUDAR AQUI */
-    background: #2d2d30; 
-    display: flex; 
-    align-items: center; 
-    padding: 0 5px; 
-    gap: 2px; 
-    border-bottom: 1px solid #333; 
+/* BREADCRUMB */
+.sap-breadcrumb {
+    background: #0b0c10; padding: 6px 15px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid #222; height: 28px;
 }
+.sap-path-link { color: #5899da; cursor: pointer; }
+.sap-separator { color: #444; font-size: 9px; }
+.sap-path-current { color: #fff; font-weight: bold; }
 
-.combo-check { background: #fff; height: 20px; width: 140px; display: flex; align-items: center; padding: 0 4px; border-radius: 2px; position: relative; }
-
-.combo-check .seta-combo { position: absolute; right: 2px; color: #333; font-size: 10px; }
-
-.sep-vertical { width: 1px; height: 18px; background: #555; border-right: 1px solid #111; margin: 0 4px; }
-
-
-
-.migo-standard-toolbar button, .migo-transaction-toolbar button { background: transparent; border: 1px solid transparent; color: #ccc; cursor: pointer; display: flex; justify-content: center; align-items: center; border-radius: 2px; }
-
-.migo-standard-toolbar button { width: 26px; height: 26px; }
-
-.migo-standard-toolbar button:hover { background: rgba(255,255,255,0.1); border-color: #666; }
-
-
-
-.migo-application-title { height: 28px; background: linear-gradient(to bottom, #3a3a40, #252526); display: flex; align-items: center; padding: 0 5px; gap: 6px; border-top: 1px solid #444; border-bottom: 2px solid #9d46ff; }
-
-.app-icon-box { width: 24px; height: 24px; background: #e0e0e0; display: flex; justify-content: center; align-items: center; border-radius: 2px; }
-
-.app-icon-box img { height: 16px; }
-
-.migo-application-title span { font-weight: bold; font-style: italic; color: #fff; text-shadow: 1px 1px 1px #000; font-size: 12px; }
-
-
-
-.migo-transaction-toolbar { height: 30px; background: #252526; display: flex; align-items: center; padding: 0 5px; gap: 4px; border-bottom: 1px solid #333; }
-
-.txt-btn { padding: 0 8px; height: 22px; color: #e3e3e3; }
-
-.txt-btn:hover { background: rgba(255,255,255,0.1); border: 1px solid #666; }
-
-
-
-
-
-
-
-.migo-sidebar {
-
-    width: 180px;      /* Reduzido de 230px */
-
-    min-width: 180px;  /* Reduzido de 230px */
-
-    background: #1a1b21; 
-
-    border-right: 1px solid #333;
-
-    display: flex; 
-
-    flex-direction: column;
-
+/* TÍTULO */
+.migo-application-title { 
+    height: 36px; 
+    background: linear-gradient(to bottom, #32323a, #1a1b1f); 
+    display: flex; align-items: center; padding: 0 15px; gap: 10px;
+    border-bottom: 2px solid #9d46ff;
 }
+.migo-application-title span { font-weight: bold; font-style: italic; color: #fff; font-size: 12px; }
 
-.sidebar-tools-row { height: 32px; background: #25262e; border-bottom: 1px solid #333; display: flex; align-items: center; padding: 0 4px; gap: 2px; }
+/* 🟢 PAINEL RETRÁTIL (ACCORDION) 🟢 */
+.tree-group { background: #15161a; border-bottom: 1px solid #333; }
+.tree-root { padding: 10px 15px; color: #bb86fc; font-weight: bold; display: flex; align-items: center; gap: 10px; }
 
-.tiny-btn { width: 24px; height: 24px; background: transparent; border: 1px solid transparent; color: #bb86fc; cursor: pointer; display: flex; justify-content: center; align-items: center; border-radius: 3px; }
-
-.tiny-btn:hover { background: rgba(255,255,255,0.1); border-color: #555; }
-
-.close-icon { margin-left: auto; color: #ff4081 !important; border-left: 1px solid #444; }
-
-
-
-.sidebar-header { background: linear-gradient(90deg, #2d1b4e, #1a1b21); border-bottom: 2px solid #9d46ff; color: #fff; font-weight: bold; padding: 4px 8px; text-shadow: 1px 1px 1px #000; }
-
-.sidebar-tree-content { flex: 1; overflow-y: auto; padding: 5px 0; background: #15161a; }
-
-
-
-.tree-group { border-bottom: 1px solid #2a2b33; }
-
-.tree-root { padding: 3px 6px; font-weight: 600; color: #d1d1d1; cursor: pointer; display: flex; gap: 6px; align-items: center; }
-
-.tree-root:hover { background: #25262e; color: #fff; }
-
-.tree-root i { color: #bb86fc; font-size: 10px; }
-
-.tree-branch { padding-left: 22px; background: #111216; padding-bottom: 2px; }
-
-.tree-item { 
-
-    padding: 2px 8px; /* Ajuste leve no respiro lateral */
-
-    color: #8b8b99; 
-
-    cursor: pointer; 
-
-    display: flex; 
-
-    gap: 6px; 
-
-    align-items: center; 
-
-    border-left: 3px solid transparent; 
-
-    white-space: nowrap; /* Impede que o texto quebre linha na sidebar estreita */
-
-}
-
-
-
-/* Garante que o número e o parênteses fiquem colados no texto */
-/* --- NOVO ESTILO DOS ITENS --- */
-.tree-item { 
-    padding: 4px 8px; 
-    color: #8b8b99; 
-    cursor: pointer; 
-    display: flex; 
-    gap: 6px; 
-    align-items: center; 
-    border-left: 3px solid transparent; 
-    transition: all 0.2s ease; 
-    border-radius: 0 4px 4px 0;
-}
-
-/* Efeito Hover (Cinza) */
-.tree-item:hover { 
-    background-color: #2d2d30; 
-    color: #fff; 
-}
-
-/* Efeito Selecionado (Rosa) */
-.tree-item.active { 
-    background: rgba(255, 64, 129, 0.15); 
-    color: #ff80ab; 
-    border-left-color: #ff4081; 
-    font-weight: 600; 
-}
-
-/* Checkbox Rosa */
-.tree-checkbox { 
-    accent-color: #ff4081; 
-    width: 13px; 
-    height: 13px; 
-    cursor: pointer; 
-    margin-right: 4px; 
-}
-
-/* Classes para edição específica das divisões que você criou */
-
-.header-main { font-size: 10px; letter-spacing: 0.5px; }
-
-.group-pedidos, .group-expedicao, .group-finalizacao, .group-ordens {
-
-    margin-bottom: 4px; /* Espaço entre os blocos de pastas */
-
-}
-
-
-
-.branch-pedidos, .branch-expedicao, .branch-finalizacao, .branch-ordens {
-
-    background: rgba(0, 0, 0, 0.2); /* Fundo levemente diferente para os ramos */
-
-}
-
-/* ============================================================
-   PASSO 1: EXPANSÃO TOTAL (LOGICA MARGIN ANALYSIS)
-   ============================================================ */
-
-/* 1. O Body Split agora é um motor Flex que ocupa 100% da largura */
-.migo-body-split {
-    display: flex; 
-    flex: 1; 
-    width: 100%; 
-    overflow: hidden; /* Mantém o scroll interno */
-}
-
-/* 2. O Painel da Direita recebe 'flex: 1' para preencher o vazio preto */
-.migo-right-panel {
-    flex: 1 !important; 
-    display: flex;
-    flex-direction: column;
-    min-width: 0;        
-    background: #0b0c10;
-    width: 100%;         
-}
-
-/* 3. A área de conteúdo principal flui com o painel */
-.main-content-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    overflow: visible;   
-}
-/* Linha de Comando (Amarela) */
-
-.command-line-row {
-
-    height: 34px; background: #0b0c10; border-bottom: 1px solid #333;
-
-    display: flex; align-items: center; padding: 0 10px; gap: 6px; flex-shrink: 0;
-
-}
-
-.sap-select-wrapper { position: relative; display: flex; align-items: center; }
-
-.sap-select { appearance: none; height: 22px; background: #121212; border: 1px solid #444; color: #e3e3e3; padding-right: 20px; width: 100%; border-radius: 2px; font-weight: 600; }
-
-.sap-select-wrapper i { position: absolute; right: 6px; color: #bb86fc; font-size: 10px; pointer-events: none; }
-
-.w-large { width: 150px; } .w-medium { width: 100px; } .w-small { width: 45px; } .w-mini { width: 35px; }
-
-
-
-.input-group-required { display: flex; border: 1px solid #ffd700; border-radius: 2px; }
-
-.sap-input-yellow { height: 22px; width: 110px; background: #4a4100; border: none; color: #fff; font-weight: bold; padding: 0 4px; }
-
-.search-btn { height: 22px; width: 22px; background: #25262e; border: none; border-left: 1px solid #ffd700; color: #e3e3e3; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-
-/* NOVO ESTILO SAP (Cole isso no lugar da linha que apagou) */
-.sap-input {
-    height: 24px;                       /* Altura padrão SAP */
-    width: 100%;
-    
-    /* VISUAL QUADRADO */
-    border-radius: 0px !important;      
-    border: 1px solid #6a6a6a;          
-    border-top-color: #4a4a4a;          
-    background-color: #101010;          
-    color: #ffffff;
-    
-    padding: 0 6px;
-    font-family: "Tahoma", "Arial", sans-serif;
-    font-size: 11px;
-    
-    /* Sombra interna para profundidade */
-    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8); 
-}
-
-/* Efeito quando clica */
-.sap-input:focus {
-    background-color: #000000;
-    border-color: #bb86fc;
-    outline: 1px dotted #bb86fc;
-}
-
-.labeled-input { display: flex; align-items: center; gap: 4px; margin-left: 5px; color: #8b8b99; }
-
-.action-buttons-group { display: flex; gap: 2px; margin-left: 10px; }
-
-.action-btn {
-    width: 24px !important;             /* Quadrado perfeito */
-    height: 24px !important;            /* Mesma altura exata do input */
-    border-radius: 0px !important;      /* ZERO arredondamento */
-    
-    /* O TRUQUE PARA GRUDAR: */
-    margin-left: -1px;                  /* Puxa para cima da borda do input */
-    
-    background: #333333;                /* Cinza sólido industrial */
-    border: 1px solid #6a6a6a;          /* Mesma cor da borda do input */
-    color: #bb86fc;
-    cursor: pointer;
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    
-    /* Sombra externa para parecer um botão físico em relevo */
-    box-shadow: 1px 1px 0px rgba(0,0,0,0.5); 
-}
-
-.action-btn:hover {
-    background-color: #444;             /* Realce sutil no hover */
-    border-color: #888;
-}
-
-.action-btn:active {
-    box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5); /* Afunda ao clicar */
-    background: #222;
-}
-
-.movement-group { margin-left: auto; display: flex; align-items: center; gap: 6px; color: #e3e3e3; }
-
-.text-center { text-align: center; }
-
-
-.sap-tabs-container { display: flex; background: #1f2026; padding-top: 6px; gap: 2px; padding-left: 10px; border-bottom: 1px solid #333; flex-shrink: 0; }
-
-.sap-tab { padding: 4px 15px; background: #2d2d30; color: #aaa; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 11px; border: 1px solid #333; border-bottom: none; }
-
-.sap-tab.active { background: #15161a; color: #fff; border-top: 2px solid #ff4081; font-weight: bold; border-bottom: 1px solid #15161a; }
-
-/* --- PASSO 3: ALINHAMENTO DO PAINEL DE DADOS --- */
-
-/* --- FIX: IMPEDE O CORTE LATERAL (ESTILO DINÂMICO) --- */
-.header-data-panel {
-
-    width: 100% !important;
-
-    display: flex;
-
-    flex-direction: row; /* Garante que as colunas fiquem lado a lado */
-
-    flex-wrap: nowrap;   /* Impede que a segunda coluna pule para baixo do menu */
-
-    justify-content: center;
-
-    gap: 0;              /* O espaço agora será controlado pelo padding/margin interno */
-
-    padding: 12px;
-
-    box-sizing: border-box;
-
-}
-
-
-/* 1. A COLUNA (Espaçamento entre as linhas) */
-
-.form-column {
-
-    flex: 1 1 0;      /* O '1' faz a coluna ocupar o espaço disponível igualmente */
-
-    min-width: 0;      /* IMPORTANTE: Permite que a coluna encolha quando o menu abre */
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 15px;
-
-    box-sizing: border-box;
-
-    /* REMOVA o width: 50% daqui */
-
-}
-
-
-
-/* 2. A LINHA (Alinhamento do Texto com a Caixa) */
-
-.form-row {
-
-    display: flex;
-
-    align-items: center; /* Mantém texto e caixa centralizados verticalmente */
-
-    gap: 1px;           /* Espaço entre o final do texto e o início da caixa */
-
-}
-
-/* Coluna da Esquerda (Geralmente campos mais longos) */
-.form-column:first-child .form-row label {
-    width: 90px; 
-    min-width: 90px;
-}
-
-/* Coluna da Direita (Campos como Centro de Custo) */
-.form-column:last-child .form-row label {
-    width: 90px;
-    min-width: 90px;
-   
-}
-
-/* 3. AS CAIXAS (Apenas inputs de texto e selects) */
-.form-row input:not([type="checkbox"]), 
-.form-row select {
-    flex: 0 1 auto;
-    width: 200px; /* Tamanho padrão das caixas de texto */
-    max-width: 100%;
-    min-width: flex;
-    height: 20px;
-    background-color: #101010;
-    border: 1px solid #6a6a6a;
-    color: #fff;
-    padding: 0 4px;
-}
-
-/* Ajuste específico para o grupo Nota Individual */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Espaço entre o quadrado e o texto */
-}
-
-.checkbox-group input[type="checkbox"] {
-    width: 14px !important;
-    height: 14px !important;
-    margin: 0;
-    accent-color: #bb86fc;
-    cursor: pointer;
-    flex: none;
-}
-
-.checkbox-group label {
-    width: auto !important;   /* Mata os 90px da coluna só aqui */
-    min-width: 0 !important;
-    font-size: 11px;
-    color: #aaa;
-    cursor: pointer;
-}
-
-.link-label { color: #5899da !important; text-decoration: underline; cursor: pointer; }
-
-.long-text { width: 300px !important; }
-
-
-
-/* ==========================================================================
-   ESTRUTURA FINAL DA GRID E TABELA - ERP BLACK LIPS
-   ========================================================================== */
-
-/* 1. Container Principal da Grid */
-.grid-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+.action-panel {
+    display: flex; gap: 15px; padding: 0 15px 15px 15px;
     background: #15161a;
-    padding: 0px;
-    overflow: hidden; /* Garante que nada vaze da tela */
-    min-height: 0;
+    overflow: hidden;
+    max-height: 150px; /* Altura máxima aberto */
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
 }
 
-/* 2. Barra de Ferramentas (Botões alinhados em linha) */
-.grid-toolbar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 15px;
-    padding: 1px;
-    border-top: 1px solid #333;
-    flex-shrink: 0; /* Impede a barra de sumir */
+/* Estado Fechado */
+.action-panel.oculto {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-/* Checkbox 'Selecionar Todos' */
-.grid-toolbar input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: #bb86fc;
-    margin: 6px;
+#seta-painel { transition: transform 0.3s; color: #9d46ff; }
+#seta-painel.girar { transform: rotate(-90deg); }
+
+.action-block { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+/* BOTÕES DE IMPORTAÇÃO */
+.btn-import {
+    width: 100%; height: 38px;
+    background: #1f2026; border: 1px solid #333;
+    font-weight: bold; font-size: 10px; cursor: pointer; border-radius: 2px;
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    transition: 0.2s;
 }
 
-/* Botões da Toolbar */
-.grid-toolbar button, .grid-toolbar .txt-btn {
-    background: transparent;
-    border: none;
-    color: #bb86fc;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0;
-}
-
-/* 3. Container de Rolagem da Tabela */
-.grid-scroll-container {
-    flex: 1;
-    overflow: auto;
-    border: 1px solid #444;
-    background: #15161a;
-    min-height: 0;
-}
-
-
-
-/* 4. A Tabela */
-
-.sap-table { 
-
-    width: max-content; /* Força a largura real das colunas (Scroll Horizontal) */
-
-    min-width: 100%; 
-
-    border-collapse: collapse; 
-
-    color: #e3e3e3; 
-
-}
-
-
-
-.sap-table th {
-
-    background: #25262e; color: #bbb; padding: 4px 6px; text-align: left;
-
-    border-right: 1px solid #333; border-bottom: 2px solid #555;
-
-    white-space: nowrap;
-
-    position: sticky; top: 0; z-index: 10; /* Cabeçalho travado no topo */
-
-    box-shadow: 0 2px 2px rgba(0,0,0,0.2);
-
-}
-
-
-
-.sap-table td {
-
-    border-right: 1px solid #333; border-bottom: 1px solid #2a2b33;
-
-    height: 24px; padding: 0 4px; white-space: nowrap;
-
-}
-
-
-
-.sap-table tr:nth-child(even) td { background: #1a1b21; }
-
-.sap-table tr:nth-child(odd) td { background: #17181d; } /* Zebra suave */
-
-.sap-table tr:hover td { background: #333 !important; color: #fff; border-bottom: 1px solid #bb86fc; }
-
-
-
-.sap-table input { width: 100%; background: transparent; border: none; color: #fff; font-family: inherit; font-size: 11px; }
-
-.sap-table input[type="checkbox"] { accent-color: #bb86fc; }
-
-
-
-/* 5. Rodapé da Grid (Fixo na parte inferior da área cinza) */
-
-.grid-footer {
-
-    height: 30px;
-
-    background: #1f2026;
-
-    border: 1px solid #444;
-
-    border-top: 1px solid #333; /* Linha sutil separando da tabela */
-
-    display: flex; align-items: center; padding: 0 6px; gap: 6px;
-
-    flex-shrink: 0; /* Impede que o rodapé seja esmagado */
-
-}
-
-.grid-footer button { 
-
-    background: transparent; border: 1px solid transparent; 
-
-    color: #bb86fc; cursor: pointer; padding: 2px 6px; font-weight: bold;
-
-}
-
-.grid-footer button:hover { background: #333; border-radius: 2px; }
-
-.grid-footer input { 
-
-    background: #121212; border: 1px solid #444; color: #fff; 
-
-    text-align: center; height: 20px; width: 80px;
-
-}
-
-.sap-tabs-bar { display: flex; background: #1a1b21; padding-top: 4px; padding-left: 10px; gap: 2px; flex-shrink: 0; }
-
-
-
-/* SCROLLBARS */
-
-::-webkit-scrollbar { width: 14px; height: 14px; background: #15161a; }
-
-::-webkit-scrollbar-thumb { background: #2d2d30; border: 3px solid #15161a; border-radius: 7px; }
-
-::-webkit-scrollbar-thumb:hover { background: #ff4081; border-color: #15161a; }
-
-::-webkit-scrollbar-corner { background: #15161a; }
-
-
-
-/* Garante que os botões fiquem compactos no Data Panel */
-.txt-btn {
-    background: transparent;
-    border: 1px solid transparent;
-    color: #e3e3e3;
-    cursor: pointer;
-    font-size: 11px;
-    padding: 2px 8px;
-    height: 22px; /* Altura combinando com os inputs de 20px-22px */
-    display: flex;
-    align-items: center;
-    border-radius: 2px;
-}
-
-.txt-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #555;
-}
-
-/* O separador vertical precisa de altura fixa para não esticar */
-.sep-vertical {
-    width: 1px;
-    height: 16px;
-    background: #444;
-    margin: 0 8px;
-}
-
+.btn-import.btn-pink { color: #ff4081; border-color: rgba(255, 64, 129, 0.3); }
+.btn-import.btn-pink:hover { background: #ff4081; color: #fff; box-shadow: 0 0 15px rgba(255, 64, 129, 0.4); }
+
+.btn-import.btn-purple { color: #9d46ff; border-color: rgba(157, 70, 255, 0.3); }
+.btn-import.btn-purple:hover { background: #9d46ff; color: #fff; box-shadow: 0 0 15px rgba(157, 70, 255, 0.4); }
+
+.action-subtitle { color: #888; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-subtitle .badge { background: #000; color: #ff4081; padding: 1px 7px; border-radius: 10px; border: 1px solid #ff4081; font-weight: bold; }
+
+/* FORMULÁRIO */
+.content-area { padding: 25px; flex: 1; overflow-y: auto; }
+.group-box { border: 1px solid #333; background: #1a1b1f; }
+.group-title { background: #25262d; color: #9d46ff; padding: 8px 12px; font-weight: bold; }
+.group-body { padding: 20px; }
+
+.form-row { display: flex; align-items: center; margin-bottom: 12px; }
+.form-row label { width: 160px; color: #aaa; }
+.sap-input { background: #0b0c10; border: 1px solid #444; color: #fff; padding: 5px 10px; flex: 1; max-width: 400px; }
+
+.action-bar { margin-top: 25px; display: flex; gap: 10px; }
+.btn-main-action { padding: 8px 20px; cursor: pointer; font-weight: bold; border: 1px solid #444; }
+.btn-save { background: #9d46ff; color: #fff; border-color: #9d46ff; }
+
+/* FOOTER */
+.sap-tabs { display: flex; background: #1a1b1f; padding-left: 10px; }
+.tab { padding: 10px 25px; color: #666; cursor: pointer; }
+.tab.active { background: #0b0c10; color: #ff4081; border-top: 2px solid #ff4081; }
+
+.sap-footer { height: 26px; background: #1a1b1f; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; font-size: 10px; color: #555; }
